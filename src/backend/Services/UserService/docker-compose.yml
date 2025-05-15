@@ -1,0 +1,24 @@
+services:
+  userservice.api:
+    image: ${DOCKER_REGISTRY-}userserviceapi
+    build:
+      context: .
+      dockerfile: UserService.API/Dockerfile
+    ports:
+      - 5000:5001
+      - 5001:5001
+
+  userservice.database:
+    image: postgres:latest
+    container_name: userservice.database
+    environment:
+      - POSTGRES_DB=users
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - 5401:5432
+
+volumes:
+  pgdata:
