@@ -1,4 +1,5 @@
 using UserService.API;
+using UserService.API.Middleware;
 using UserService.BLL;
 using UserService.DAL;
 using UserService.DAL.Extensions;
@@ -27,6 +28,8 @@ if (app.Environment.IsDevelopment())
 
     app.ApplyMigrations();
 }
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 

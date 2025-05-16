@@ -135,7 +135,7 @@ namespace UserService.DAL.Repositories
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var result = await RoleExistsAsync(name, cancellationToken);
+            var result = await _roleManager.RoleExistsAsync(name);
 
             return result;
         }

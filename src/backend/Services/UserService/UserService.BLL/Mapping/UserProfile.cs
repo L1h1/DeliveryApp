@@ -12,6 +12,8 @@ namespace UserService.BLL.Mapping
             CreateMap<RegisterRequestDTO, User>();
             CreateMap<User, UserResponseDTO>()
                 .ForMember(dest => dest.AccessToken, opt => opt.Ignore());
+
+            CreateMap<User, UserDetailsDTO>();
         }
     }
 }

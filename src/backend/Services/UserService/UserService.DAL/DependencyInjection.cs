@@ -22,7 +22,7 @@ namespace UserService.DAL
             services.AddIdentity<User, IdentityRole<Guid>>(opt =>
             {
                 opt.SignIn.RequireConfirmedAccount = false;
-                opt.SignIn.RequireConfirmedEmail = false;
+                opt.SignIn.RequireConfirmedEmail = true;
                 opt.SignIn.RequireConfirmedPhoneNumber = false;
             })
                 .AddEntityFrameworkStores<AppDbContext>()

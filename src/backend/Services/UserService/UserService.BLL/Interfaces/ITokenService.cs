@@ -12,7 +12,6 @@ namespace UserService.BLL.Interfaces
     {
         Task<string> GenerateAccessTokenAsync(User user, CancellationToken cancellationToken = default);
         (string refreshToken, DateTime expirityDate) GenerateRefreshToken();
-
         ClaimsPrincipal GetPrincipalFromToken(string token);
     }
 }

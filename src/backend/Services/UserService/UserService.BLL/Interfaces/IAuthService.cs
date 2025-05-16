@@ -1,5 +1,4 @@
-﻿using UserService.BLL.DTOs;
-using UserService.BLL.DTOs.Request;
+﻿using UserService.BLL.DTOs.Request;
 using UserService.BLL.DTOs.Response;
 
 namespace UserService.BLL.Interfaces

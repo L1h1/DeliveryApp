@@ -1,7 +1,6 @@
 ﻿using System.Security.Claims;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
-using UserService.BLL.DTOs;
 using UserService.BLL.DTOs.Request;
 using UserService.BLL.DTOs.Response;
 using UserService.BLL.Exceptions;
@@ -17,13 +16,15 @@ namespace UserService.BLL.Services
         private readonly SignInManager<User> _signInManager;
         private readonly ITokenService _tokenService;
         private readonly IMapper _mapper;
+        private readonly IAccountService _accountService;
 
-        public AuthService(IUserRepository userRepository, SignInManager<User> signInManager, ITokenService tokenService, IMapper mapper)
+        public AuthService(IUserRepository userRepository, SignInManager<User> signInManager, ITokenService tokenService, IMapper mapper, IAccountService accountService)
         {
             _userRepository = userRepository;
             _signInManager = signInManager;
             _tokenService = tokenService;
             _mapper = mapper;
+            _accountService = accountService;
         }
 
         public async Task<UserResponseDTO> LoginUserAsync(LoginRequestDTO loginDTO, CancellationToken cancellationToken = default)
@@ -35,7 +36,7 @@ namespace UserService.BLL.Services
 
             if (!singInResult.Succeeded)
             {
-                throw new NotFoundException("User with given credentials not found");
+                throw new BadRequestException("Failed to log in");
             }
 
             var result = _mapper.Map<UserResponseDTO>(user);
@@ -64,7 +65,6 @@ namespace UserService.BLL.Services
             await _userRepository.UpdateUserAsync(user);
 
             var result = _mapper.Map<UserResponseDTO>(user);
-
             result.AccessToken = await _tokenService.GenerateAccessTokenAsync(user);
 
             return result;
@@ -82,13 +82,13 @@ namespace UserService.BLL.Services
                 await _userRepository.AssignRoleAsync(user, "Client");
 
                 var accessToken = await _tokenService.GenerateAccessTokenAsync(user, cancellationToken);
-
                 (user.RefreshToken, user.ExpiresOn) = _tokenService.GenerateRefreshToken();
                 await _userRepository.UpdateUserAsync(user);
 
                 var response = _mapper.Map<UserResponseDTO>(user);
-
                 response.AccessToken = accessToken;
+
+                await _accountService.GenerateEmailConfirmationTokenAsync(userDTO.Email, cancellationToken);
 
                 return response;
             }
