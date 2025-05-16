@@ -23,11 +23,20 @@ namespace UserService.DAL.Repositories
             await _roleManager.CreateAsync(new IdentityRole<Guid>(name));
         }
 
-        public async Task<IdentityResult> AddUserAsync(User user, CancellationToken cancellationToken = default)
+        public async Task<IdentityResult> AddUserAsync(User user, string password, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var result = await _userManager.CreateAsync(user);
+            var result = await _userManager.CreateAsync(user, password);
+
+            return result;
+        }
+
+        public async Task<IdentityResult> AssignRoleAsync(User user, string role, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var result = await _userManager.AddToRoleAsync(user, role);
 
             return result;
         }
@@ -82,6 +91,15 @@ namespace UserService.DAL.Repositories
             cancellationToken.ThrowIfCancellationRequested();
 
             var result = await _roleManager.Roles.Select(r => r.Name).ToListAsync();
+
+            return result;
+        }
+
+        public async Task<List<string>> ListUserRolesAsync(User user, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var result = (await _userManager.GetRolesAsync(user)).ToList();
 
             return result;
         }

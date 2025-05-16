@@ -1,3 +1,5 @@
+using UserService.API;
+using UserService.BLL;
 using UserService.DAL;
 using UserService.DAL.Extensions;
 
@@ -9,10 +11,11 @@ builder.Services.AddControllers();
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication();
 builder.Services.AddDAL(builder.Configuration);
+builder.Services.AddBLL();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwagger();
 
 var app = builder.Build();
 
@@ -27,8 +30,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
 app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 
