@@ -34,6 +34,10 @@ namespace UserService.API.Middleware
             {
                 await HandleExceptionAsync(context, ex, HttpStatusCode.Unauthorized);
             }
+            catch (UnauthorizedException ex)
+            {
+                await HandleExceptionAsync(context, ex, HttpStatusCode.Unauthorized);
+            }
             catch (ValidationException ex)
             {
                 await HandleExceptionAsync(context, ex, HttpStatusCode.UnprocessableEntity);

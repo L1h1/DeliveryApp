@@ -32,11 +32,10 @@ namespace UserService.BLL.Services
             cancellationToken.ThrowIfCancellationRequested();
 
             var user = await _userRepository.GetUserByEmailAsync(loginDTO.Email, cancellationToken);
-            var singInResult = await _signInManager.CheckPasswordSignInAsync(user, loginDTO.Password, false);
 
-            if (!singInResult.Succeeded)
+            if (user is null || !(await _signInManager.CheckPasswordSignInAsync(user, loginDTO.Password, false)).Succeeded)
             {
-                throw new BadRequestException("Failed to log in");
+                throw new UnauthorizedException("Invalid user credentials.");
             }
 
             var result = _mapper.Map<UserResponseDTO>(user);
@@ -52,13 +51,13 @@ namespace UserService.BLL.Services
             var principal = _tokenService.GetPrincipalFromToken(tokenDTO.AccessToken);
             var user = await _userRepository.GetUserByEmailAsync(principal.FindFirst(ClaimTypes.Email)!.Value, cancellationToken);
 
-            if (user.RefreshToken != tokenDTO.RefreshToken)
+            if (user is null || user.RefreshToken != tokenDTO.RefreshToken)
             {
-                throw new BadRequestException("Invalid refresh token");
+                throw new UnauthorizedException("Invalid credentials.");
             }
             else if (user.ExpiresOn < DateTime.UtcNow)
             {
-                throw new TokenExpiredException("Refresh token expired");
+                throw new TokenExpiredException("Refresh token expired.");
             }
 
             (user.RefreshToken, user.ExpiresOn) = _tokenService.GenerateRefreshToken();
@@ -74,28 +73,33 @@ namespace UserService.BLL.Services
         {
             cancellationToken.ThrowIfCancellationRequested();
 
+            var existingUser = await _userRepository.GetUserByEmailAsync(userDTO.Email, cancellationToken);
+
+            if (existingUser is not null)
+            {
+                throw new BadRequestException("User with given email already exists.");
+            }
+
             var user = _mapper.Map<User>(userDTO);
             var result = await _userRepository.AddUserAsync(user, userDTO.Password, cancellationToken);
 
-            if (result.Succeeded)
-            {
-                await _userRepository.AssignRoleAsync(user, "Client");
-
-                var accessToken = await _tokenService.GenerateAccessTokenAsync(user, cancellationToken);
-                (user.RefreshToken, user.ExpiresOn) = _tokenService.GenerateRefreshToken();
-                await _userRepository.UpdateUserAsync(user);
-
-                var response = _mapper.Map<UserResponseDTO>(user);
-                response.AccessToken = accessToken;
-
-                await _accountService.GenerateEmailConfirmationTokenAsync(userDTO.Email, cancellationToken);
-
-                return response;
-            }
-            else
+            if (!result.Succeeded)
             {
                 throw new BadRequestException(string.Join('\n', result.Errors.Select(e => e.Description)));
             }
+
+            await _userRepository.AssignRoleAsync(user, "Client");
+
+            var accessToken = await _tokenService.GenerateAccessTokenAsync(user, cancellationToken);
+            (user.RefreshToken, user.ExpiresOn) = _tokenService.GenerateRefreshToken();
+            await _userRepository.UpdateUserAsync(user);
+
+            var response = _mapper.Map<UserResponseDTO>(user);
+            response.AccessToken = accessToken;
+
+            await _accountService.GenerateEmailConfirmationTokenAsync(userDTO.Email, cancellationToken);
+
+            return response;
         }
     }
 }
