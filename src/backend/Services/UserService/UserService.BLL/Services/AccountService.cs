@@ -59,7 +59,7 @@ namespace UserService.BLL.Services
 
             var token = await _userRepository.GenerateEmailConfirmationTokenAsync(user, cancellationToken);
             var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-            var confirmationEmail = $"https://localhost:5000/api/account/{email}/email-confirmation/{encodedToken}";
+            var confirmationEmail = $"https://localhost:5000/api/account/email-confirmation/{email}/{encodedToken}";
 
             await _emailSender.SendEmailAsync(email, "EMAIL CONFIRMATION", confirmationEmail);
         }
@@ -122,6 +122,60 @@ namespace UserService.BLL.Services
             }
 
             return _mapper.Map<List<UserDetailsDTO>>(result);
+        }
+
+        public async Task GenerateEmailChangeTokenAsync(string userId, string email, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var existingUser = await _userRepository.GetUserByEmailAsync(email, cancellationToken);
+
+            if (existingUser is not null)
+            {
+                throw new BadRequestException("Email already taken.");
+            }
+
+            var user = await _userRepository.GetUserByIdAsync(userId, cancellationToken);
+            var token = await _userRepository.GenerateEmailChangeTokenAsync(user, email, cancellationToken);
+            var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+            var confirmationEmail = $"https://localhost:5000/api/account/confirm-email-change/{user.Id}/{email}/{encodedToken}";
+
+            await _emailSender.SendEmailAsync(email, "EMAIL CHANGE", confirmationEmail);
+        }
+
+        public async Task<IdentityResult> ConfirmEmailChangeAsync(string userId, string email, string token, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var user = await _userRepository.GetUserByIdAsync(userId, cancellationToken);
+            var decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(token));
+            var result = await _userRepository.ConfirmEmailChangeAsync(user, email, decodedToken, cancellationToken);
+
+            if (!result.Succeeded)
+            {
+                throw new UnauthorizedException("Invalid confirmation token.");
+            }
+
+            return result;
+        }
+
+        public async Task<IdentityResult> ChangePasswordAsync(string userId, string currentPassword, string newPassword, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var user = await _userRepository.GetUserByIdAsync(userId, cancellationToken);
+            var result = await _userRepository.ChangePasswordAsync(user, currentPassword, newPassword, cancellationToken);
+
+            return result;
+        }
+
+        public async Task<UserDetailsDTO> GetUserByIdAsync(string userId, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var user = await _userRepository.GetUserByIdAsync(userId, cancellationToken);
+
+            return _mapper.Map<UserDetailsDTO>(user);
         }
     }
 }

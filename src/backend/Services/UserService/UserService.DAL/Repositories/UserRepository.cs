@@ -50,6 +50,33 @@ namespace UserService.DAL.Repositories
             return result;
         }
 
+        public async Task<IdentityResult> ConfirmEmailChangeAsync(User user, string newEmail, string token, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var result = await _userManager.ChangeEmailAsync(user, newEmail, token);
+
+            return result;
+        }
+
+        public async Task<IdentityResult> ChangePasswordAsync(User user, string currentPassword, string newPassword, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var result = await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
+
+            return result;
+        }
+
+        public async Task<string> GenerateEmailChangeTokenAsync(User user, string newEmail, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var result = await _userManager.GenerateChangeEmailTokenAsync(user, newEmail);
+
+            return result;
+        }
+
         public async Task<string> GenerateEmailConfirmationTokenAsync(User user, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();

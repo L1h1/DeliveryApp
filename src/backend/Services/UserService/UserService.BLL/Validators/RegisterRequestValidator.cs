@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using UserService.BLL.DTOs.Request;
+using UserService.BLL.Extensions;
 
 namespace UserService.BLL.Validators
 {
@@ -16,12 +17,7 @@ namespace UserService.BLL.Validators
                 .EmailAddress().WithMessage("Incorrect email format.");
 
             RuleFor(d => d.Password)
-                .NotEmpty().WithMessage("Password is empty")
-                .MinimumLength(6).WithMessage("Password requires minimum length of 6.")
-                .Matches(@"[A-Z]").WithMessage("Password requires an upper case letter.")
-                .Matches(@"[a-z]").WithMessage("Password requires a lower case letter.")
-                .Matches(@"\d").WithMessage("Password requires a numeric digit.")
-                .Matches(@"[\W]").WithMessage("Password requires a special character.");
+                .ApplyPasswordRules();
 
             RuleFor(d => d.PhoneNumber)
                 .NotEmpty().WithMessage("Phone number is empty.")

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using UserService.BLL.DTOs.Response;
-using UserService.DAL.Models;
 
 namespace UserService.BLL.Interfaces
 {
@@ -12,5 +11,9 @@ namespace UserService.BLL.Interfaces
         Task<IdentityResult> ResetPasswordAsync(string email, string resetCode, string newPassword, CancellationToken cancellationToken = default);
         Task<List<string>> ListRolesAsync(CancellationToken cancellationToken = default);
         Task<List<UserDetailsDTO>> ListUsersByRoleAsync(string role, CancellationToken cancellationToken = default);
+        Task GenerateEmailChangeTokenAsync(string userId, string email, CancellationToken cancellationToken = default);
+        Task<IdentityResult> ConfirmEmailChangeAsync(string userId, string email, string token, CancellationToken cancellationToken = default);
+        Task<IdentityResult> ChangePasswordAsync(string userId, string currentPassword, string newPassword, CancellationToken cancellationToken = default);
+        Task<UserDetailsDTO> GetUserByIdAsync(string userId,  CancellationToken cancellationToken = default);
     }
 }

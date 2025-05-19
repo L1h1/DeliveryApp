@@ -47,6 +47,11 @@ namespace UserService.DAL
                 };
             });
 
+            services.AddAuthorizationBuilder()
+                .AddPolicy("Admin", p => p.RequireRole("Admin"))
+                .AddPolicy("Client", p => p.RequireRole("Client"))
+                .AddPolicy("Courier", p => p.RequireRole("Courier"));
+
             return services;
         }
     }

@@ -10,6 +10,7 @@ namespace UserService.BLL.Mapping
         public UserProfile()
         {
             CreateMap<RegisterRequestDTO, User>();
+
             CreateMap<User, UserResponseDTO>()
                 .ForMember(dest => dest.AccessToken, opt => opt.Ignore());
 

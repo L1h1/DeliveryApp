@@ -7,8 +7,11 @@ namespace UserService.BLL.Validators
     {
         public TokenRequestValidator()
         {
-            RuleFor(d => d.AccessToken).NotEmpty().WithMessage("Access token is empty.");
-            RuleFor(d => d.RefreshToken).NotEmpty().WithMessage("Refresh token is empty.");
+            RuleFor(d => d.AccessToken)
+                .NotEmpty().WithMessage("Access token is empty.");
+
+            RuleFor(d => d.RefreshToken)
+                .NotEmpty().WithMessage("Refresh token is empty.");
         }
     }
 }

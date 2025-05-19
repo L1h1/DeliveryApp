@@ -20,5 +20,8 @@ namespace UserService.DAL.Interfaces.Repositories
         Task<bool> RoleExistsAsync(string name, CancellationToken cancellationToken = default);
         Task<List<User>> ListUsersByRoleAsync(string role, CancellationToken cancellationToken = default);
         Task<List<string>> ListUserRolesAsync(User user, CancellationToken cancellationToken = default);
+        Task<string> GenerateEmailChangeTokenAsync(User user, string newEmail, CancellationToken cancellationToken = default);
+        Task<IdentityResult> ConfirmEmailChangeAsync(User user, string newEmail, string token, CancellationToken cancellationToken = default);
+        Task<IdentityResult> ChangePasswordAsync(User user, string currentPassword, string newPassword, CancellationToken cancellationToken = default);
     }
 }
