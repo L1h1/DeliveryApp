@@ -13,6 +13,8 @@ namespace ProductService.Infrastructure.Data.SQL.EntityConfigurations
             builder.Property(p => p.Title).HasMaxLength(64).IsRequired();
             builder.Property(p => p.Price).IsRequired();
             builder.Property(p => p.IsAvailable).IsRequired();
+            builder.Property(p => p.UnitOfMeasure).IsRequired()
+                .HasConversion<string>();
 
             builder.HasMany(p => p.Categories).WithMany(p => p.Products);
         }

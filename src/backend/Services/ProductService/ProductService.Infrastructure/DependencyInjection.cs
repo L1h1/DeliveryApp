@@ -8,6 +8,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 using ProductService.Application.Interfaces.Repositories;
 using ProductService.Infrastructure.Data.NoSQL;
+using ProductService.Infrastructure.Data.NoSQL.Repositories;
 using ProductService.Infrastructure.Data.SQL;
 using ProductService.Infrastructure.Data.SQL.Repositories;
 
@@ -37,6 +38,8 @@ namespace ProductService.Infrastructure
 
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<IManufacturerRepository, ManufacturerRepository>();
+            services.AddScoped<IProductDetailsRepository, ProductDetailsRepository>();
 
             return services;
         }

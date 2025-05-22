@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using ProductService.Application.DTOs.Response;
 using ProductService.Application.Interfaces.Repositories;
 
 namespace ProductService.Infrastructure.Data.SQL.Repositories
@@ -34,18 +35,40 @@ namespace ProductService.Infrastructure.Data.SQL.Repositories
             await _context.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<ICollection<T>> ListAsync(Expression<Func<T, bool>>? filter, CancellationToken cancellationToken = default)
+        public async Task<PaginatedResponseDTO<T>> ListAsync(int pageNumber, int pageSize, Expression<Func<T, bool>>? filter = null, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
+            var data = new List<T>();
+            int totalCount = default;
+
             if (filter is not null)
             {
-                return await _dbSet.Where(filter).ToListAsync(cancellationToken);
+                data = await _dbSet
+                    .Where(filter)
+                    .Skip((pageNumber - 1 ) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync(cancellationToken);
+
+                totalCount = await _dbSet.Where(filter).CountAsync(cancellationToken);
             }
             else
             {
-                return await _dbSet.ToListAsync(cancellationToken);
+                data = await _dbSet
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync(cancellationToken);
+
+                totalCount = await _dbSet.CountAsync(cancellationToken);
             }
+
+            return new PaginatedResponseDTO<T>
+            {
+                Items = data,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+            };
         }
 
         public async Task<T?> UpdateAsync(T tEntity, CancellationToken cancellationToken = default)

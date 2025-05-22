@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using ProductService.Application.DTOs.Response;
 
 namespace ProductService.Application.Interfaces.Repositories
 {
@@ -7,6 +8,6 @@ namespace ProductService.Application.Interfaces.Repositories
         Task<T?> AddAsync(T tEntity, CancellationToken cancellationToken = default);
         Task<T?> UpdateAsync(T tEntity, CancellationToken cancellationToken = default);
         Task DeleteAsync(T tEntity, CancellationToken cancellationToken = default);
-        Task<ICollection<T>> ListAsync(Expression<Func<T, bool>>? filter, CancellationToken cancellationToken = default);
+        Task<PaginatedResponseDTO<T>> ListAsync(int pageNumber, int pageSize, Expression<Func<T, bool>>? filter = null, CancellationToken cancellationToken = default);
     }
 }

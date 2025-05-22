@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
+using ProductService.Application.DTOs.Response;
 using ProductService.Application.Interfaces.Repositories;
 using ProductService.Domain.Entities;
 
@@ -23,16 +25,43 @@ namespace ProductService.Infrastructure.Data.SQL.Repositories
             return result;
         }
 
-        public async Task<ICollection<Product>> ListWithQueryAsync(Func<IQueryable<Product>, IQueryable<Product>>? query, CancellationToken cancellationToken = default)
+        public async Task<PaginatedResponseDTO<Product>> ListWithNestedAsync(int pageNumber, int pageSize, Expression<Func<Product, bool>>? filter = null, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (query is null)
+            var data = new List<Product>();
+            var query = _dbSet
+                .Include(p => p.Manufacturer)
+                .Include(p => p.Categories) as IQueryable<Product>;
+
+            int totalCount = default;
+
+            if (filter is null)
             {
-                return await _dbSet.ToListAsync(cancellationToken);
+                totalCount = await query.CountAsync(cancellationToken);
+                data = await query
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync(cancellationToken);
+            }
+            else
+            {
+                query = query.Where(filter);
+                totalCount = await query.CountAsync(cancellationToken);
+
+                data = await query
+                        .Skip((pageNumber - 1) * pageSize)
+                        .Take(pageSize)
+                        .ToListAsync(cancellationToken);
             }
 
-            return await query(_dbSet).ToListAsync(cancellationToken);
+            return new PaginatedResponseDTO<Product>
+            {
+                Items = data,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+            };
         }
     }
 }
