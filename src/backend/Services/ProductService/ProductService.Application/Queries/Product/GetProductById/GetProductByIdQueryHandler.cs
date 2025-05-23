@@ -28,7 +28,7 @@ namespace ProductService.Application.Queries.Product.GetProductById
                 throw new NotFoundException("Product not found.");
             }
 
-            var productDetails = await _productDetailsRepository.GetByIdAsync(generalData.Id, cancellationToken);
+            var productDetails = await _productDetailsRepository.GetByIdAsync(request.id, cancellationToken);
 
             if (productDetails is null)
             {

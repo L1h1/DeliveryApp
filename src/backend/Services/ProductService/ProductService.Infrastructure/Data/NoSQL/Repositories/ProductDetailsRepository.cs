@@ -31,11 +31,12 @@ namespace ProductService.Infrastructure.Data.NoSQL.Repositories
             await _dbContext.ProductsDetails.DeleteOneAsync(p => p.Id == tEntity.Id);
         }
 
-        public async Task<ProductDetails> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+        public async Task<ProductDetails> GetByIdAsync(string id, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var result = await _dbContext.ProductsDetails.Find(p => p.Id == id).FirstOrDefaultAsync();
+            Guid parsedId = Guid.Parse(id);
+            var result = await _dbContext.ProductsDetails.Find(p => p.Id == parsedId).FirstOrDefaultAsync();
 
             return result;
         }

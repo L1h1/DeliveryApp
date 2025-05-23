@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ProductService.Application.DTOs.Request;
 using ProductService.Application.DTOs.Response;
 using ProductService.Domain.Entities;
 
@@ -18,7 +19,9 @@ namespace ProductService.Application.Mapping
                 .ForMember(p => p.ManufacturerName, dest => dest.MapFrom(src => src.Manufacturer.Name))
                 .ForMember(p => p.ManufacturerAddress, dest => dest.MapFrom(src => src.Manufacturer.Address));
 
-            CreateMap<ProductDetails, DetailedProductResponseDTO>();
+            CreateMap<ProductDetailsProfile, DetailedProductResponseDTO>();
+
+            CreateMap<ProductRequestDTO, Product>();
         }
     }
 }

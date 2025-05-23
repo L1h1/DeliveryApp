@@ -20,11 +20,11 @@ namespace ProductService.Infrastructure.Data.SQL.Repositories
             return result;
         }
 
-        public async Task<Category?> GetByNameAsync(string categoryName, CancellationToken cancellationToken = default)
+        public async Task<Category?> GetByNameAsync(string normalizedName, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var result = await _dbSet.FirstOrDefaultAsync(c => c.Name == categoryName, cancellationToken);
+            var result = await _dbSet.FirstOrDefaultAsync(c => c.NormalizedName == normalizedName, cancellationToken);
 
             return result;
         }

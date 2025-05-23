@@ -4,6 +4,6 @@ namespace ProductService.Application.Interfaces.Repositories
 {
     public interface IProductDetailsRepository : IBaseRepository<ProductDetails>
     {
-        Task<ProductDetails> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+        Task<ProductDetails> GetByIdAsync(string id, CancellationToken cancellationToken);
     }
 }
