@@ -3,7 +3,9 @@ using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using UserService.BLL.Constants;
 using UserService.BLL.DTOs.Response;
 using UserService.BLL.Exceptions;
 using UserService.BLL.Interfaces;
@@ -16,12 +18,14 @@ namespace UserService.BLL.Services
         private readonly IUserRepository _userRepository;
         private readonly IEmailSender _emailSender;
         private readonly IMapper _mapper;
+        private readonly IConfiguration _configuration;
 
-        public AccountService(IUserRepository userRepository, IEmailSender emailSender, IMapper mapper)
+        public AccountService(IUserRepository userRepository, IEmailSender emailSender, IMapper mapper, IConfiguration configuration)
         {
             _userRepository = userRepository;
             _emailSender = emailSender;
             _mapper = mapper;
+            _configuration = configuration;
         }
 
         public async Task<IdentityResult> ConfirmEmailASync(string email, string token, CancellationToken cancellationToken = default)
@@ -59,9 +63,9 @@ namespace UserService.BLL.Services
 
             var token = await _userRepository.GenerateEmailConfirmationTokenAsync(user, cancellationToken);
             var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-            var confirmationEmail = $"https://localhost:5000/api/account/email-confirmation/{email}/{encodedToken}";
+            var confirmationEmail = $"{_configuration["BaseUrl"]}/account/email-confirmation/{email}/{encodedToken}";
 
-            await _emailSender.SendEmailAsync(email, "EMAIL CONFIRMATION", confirmationEmail);
+            await _emailSender.SendEmailAsync(email, EmailConstants.EmailConfirmation, confirmationEmail);
         }
 
         public async Task GeneratePasswordResetTokenAsync(string email, CancellationToken cancellationToken = default)
@@ -77,7 +81,7 @@ namespace UserService.BLL.Services
 
             var resetCode = await _userRepository.GeneratePasswordResetTokenAsync(user, cancellationToken);
 
-            await _emailSender.SendEmailAsync(email, "PASSWORD RESET CODE", resetCode);
+            await _emailSender.SendEmailAsync(email, EmailConstants.PasswordReset, resetCode);
         }
 
         public async Task<IdentityResult> ResetPasswordAsync(string email, string resetCode, string newPassword, CancellationToken cancellationToken = default)
@@ -138,9 +142,9 @@ namespace UserService.BLL.Services
             var user = await _userRepository.GetUserByIdAsync(userId, cancellationToken);
             var token = await _userRepository.GenerateEmailChangeTokenAsync(user, email, cancellationToken);
             var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-            var confirmationEmail = $"https://localhost:5000/api/account/confirm-email-change/{user.Id}/{email}/{encodedToken}";
+            var confirmationEmail = $"{_configuration["BaseUrl"]}/account/confirm-email-change/{user.Id}/{email}/{encodedToken}";
 
-            await _emailSender.SendEmailAsync(email, "EMAIL CHANGE", confirmationEmail);
+            await _emailSender.SendEmailAsync(email, EmailConstants.EmailChange, confirmationEmail);
         }
 
         public async Task<IdentityResult> ConfirmEmailChangeAsync(string userId, string email, string token, CancellationToken cancellationToken = default)
