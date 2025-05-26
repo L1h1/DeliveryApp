@@ -8,6 +8,5 @@ namespace ProductService.Application.DTOs.Request
         public string? Description { get; init; }
         public NutritionInfo? Nutrition { get; init; }
         public List<string>? Composition { get; init; }
-        public List<string>? Images { get; init; }
     }
 }

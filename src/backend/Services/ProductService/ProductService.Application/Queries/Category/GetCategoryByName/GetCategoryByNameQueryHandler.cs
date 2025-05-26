@@ -19,7 +19,7 @@ namespace ProductService.Application.Queries.Category.GetCategoryByName
 
         public async Task<CategoryResponseDTO> Handle(GetCategoryByNameQuery request, CancellationToken cancellationToken)
         {
-            var data = await _categoryRepository.GetByNameAsync(request.name, cancellationToken);
+            var data = await _categoryRepository.GetByNameAsync(request.Name, cancellationToken);
 
             if (data is null)
             {

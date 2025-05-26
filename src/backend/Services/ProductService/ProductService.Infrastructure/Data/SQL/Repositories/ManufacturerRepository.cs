@@ -13,18 +13,14 @@ namespace ProductService.Infrastructure.Data.SQL.Repositories
 
         public async Task<Manufacturer> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            var result = await _dbSet.FindAsync(id, cancellationToken);
+            var result = await _dbSet.FindAsync([id], cancellationToken);
 
             return result;
         }
 
         public async Task<Manufacturer> GetByNameAsync(string normalizedName, CancellationToken cancellationToken = default)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            var result = await _dbSet.FirstOrDefaultAsync(m => m.NormalizedName == normalizedName);
+            var result = await _dbSet.FirstOrDefaultAsync(m => m.NormalizedName == normalizedName, cancellationToken);
 
             return result;
         }

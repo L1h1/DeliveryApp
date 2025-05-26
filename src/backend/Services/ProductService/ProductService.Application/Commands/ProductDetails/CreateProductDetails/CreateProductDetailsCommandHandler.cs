@@ -21,21 +21,21 @@ namespace ProductService.Application.Commands.ProductDetails.CreateProductDetail
 
         public async Task<ProductDetailsResponseDTO> Handle(CreateProductDetailsCommand request, CancellationToken cancellationToken)
         {
-            var existingProduct = await _productRepository.GetByIdAsync(request.requestDTO.ProductId, cancellationToken);
+            var existingProduct = await _productRepository.GetByIdAsync(request.RequestDTO.ProductId, cancellationToken);
 
             if (existingProduct is null)
             {
                 throw new NotFoundException("Product with given id not found.");
             }
 
-            var existingDetails = await _productDetailsRepository.GetByIdAsync(request.requestDTO.ProductId, cancellationToken);
+            var existingDetails = await _productDetailsRepository.GetByIdAsync(request.RequestDTO.ProductId, cancellationToken);
 
             if (existingDetails is not null)
             {
                 throw new BadRequestException("Details for this product already exist. Use update flow instead.");
             }
 
-            var details = _mapper.Map<Domain.Entities.ProductDetails>(request.requestDTO);
+            var details = _mapper.Map<Domain.Entities.ProductDetails>(request.RequestDTO);
 
             details = await _productDetailsRepository.AddAsync(details, cancellationToken);
 

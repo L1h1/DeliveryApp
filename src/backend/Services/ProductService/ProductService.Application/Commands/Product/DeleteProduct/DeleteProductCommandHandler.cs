@@ -15,7 +15,7 @@ namespace ProductService.Application.Commands.Product.DeleteProduct
 
         public async Task<Unit> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
         {
-            var existingProduct = await _productRepository.GetByIdAsync(request.id, cancellationToken);
+            var existingProduct = await _productRepository.GetByIdAsync(request.Id, cancellationToken);
 
             if (existingProduct is null)
             {

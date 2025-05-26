@@ -19,9 +19,9 @@ namespace ProductService.Application.Queries.Category.GetAllCategories
 
         public async Task<PaginatedResponseDTO<CategoryResponseDTO>> Handle(GetAllCategoriesQuery request, CancellationToken cancellationToken)
         {
-            var data = await _categoryRepository.ListAsync(request.dto.PageNumber, request.dto.PageSize, cancellationToken: cancellationToken);
+            var data = await _categoryRepository.ListAsync(request.Dto.PageNumber, request.Dto.PageSize, cancellationToken: cancellationToken);
 
-            if (!data.Items.Any())
+            if (data.Items.Count == 0)
             {
                 throw new NotFoundException("No categories found");
             }

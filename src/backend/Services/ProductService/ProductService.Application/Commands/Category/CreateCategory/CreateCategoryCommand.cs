@@ -4,7 +4,7 @@ using ProductService.Application.DTOs.Response;
 
 namespace ProductService.Application.Commands.Category.CreateCategory
 {
-    public sealed record CreateCategoryCommand(CategoryRequestDTO requestDTO) : IRequest<CategoryResponseDTO>
+    public sealed record CreateCategoryCommand(CategoryRequestDTO RequestDTO) : IRequest<CategoryResponseDTO>
     {
     }
 }

@@ -6,7 +6,7 @@ namespace ProductService.Application.Commands.Category.UpdateCategory
     {
         public UpdateCategoryCommandValidator()
         {
-            RuleFor(x => x.id)
+            RuleFor(x => x.Id)
                 .NotEmpty().WithMessage("Category id is empty.");
         }
     }

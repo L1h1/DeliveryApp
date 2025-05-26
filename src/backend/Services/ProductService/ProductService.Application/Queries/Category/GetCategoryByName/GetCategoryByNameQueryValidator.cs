@@ -6,7 +6,7 @@ namespace ProductService.Application.Queries.Category.GetCategoryByName
     {
         public GetCategoryByNameQueryValidator()
         {
-            RuleFor(q => q.name)
+            RuleFor(q => q.Name)
                 .NotEmpty().WithMessage("Category name is empty.")
                 .MaximumLength(64).WithMessage("Category name's length can't be more than 64");
         }

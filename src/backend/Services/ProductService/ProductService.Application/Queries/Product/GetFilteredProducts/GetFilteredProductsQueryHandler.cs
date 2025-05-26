@@ -20,7 +20,7 @@ namespace ProductService.Application.Queries.Product.GetFilteredProducts
 
         public async Task<PaginatedResponseDTO<ProductResponseDTO>> Handle(GetFilteredProductsQuery request, CancellationToken cancellationToken)
         {
-            var dto = request.dto;
+            var dto = request.Dto;
             var normalizedTerm = dto.SearchTerm?.Trim().ToLower();
 
             Expression<Func<Domain.Entities.Product, bool>> filter = product =>
@@ -38,7 +38,7 @@ namespace ProductService.Application.Queries.Product.GetFilteredProducts
                 filter,
                 cancellationToken);
 
-            if (!data.Items.Any())
+            if (data.Items.Count == 0)
             {
                 throw new NotFoundException("No products matching the given filter found.");
             }

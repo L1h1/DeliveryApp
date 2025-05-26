@@ -6,7 +6,7 @@ namespace ProductService.Application.Commands.Category.DeleteCategory
     {
         public DeleteCategoryCommandValidator()
         {
-            RuleFor(c => c.id)
+            RuleFor(c => c.Id)
                 .NotEmpty().WithMessage("Category id is empty");
         }
     }

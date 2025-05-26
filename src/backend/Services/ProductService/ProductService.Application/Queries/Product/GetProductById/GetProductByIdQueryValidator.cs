@@ -6,7 +6,7 @@ namespace ProductService.Application.Queries.Product.GetProductById
     {
         public GetProductByIdQueryValidator()
         {
-            RuleFor(q => q.id)
+            RuleFor(q => q.Id)
                 .NotEmpty().WithMessage("Product id is empty.");
         }
     }

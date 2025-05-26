@@ -2,11 +2,11 @@
 {
     public class Manufacturer
     {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-        public string NormalizedName { get; set; }
-        public string Country { get; set; }
-        public string Address { get; set; }
-        public List<Product> Products { get; set; }
+        required public Guid Id { get; set; }
+        required public string Name { get; set; }
+        required public string NormalizedName { get; set; }
+        required public string Country { get; set; }
+        required public string Address { get; set; }
+        public List<Product> Products { get; set; } = new ();
     }
 }

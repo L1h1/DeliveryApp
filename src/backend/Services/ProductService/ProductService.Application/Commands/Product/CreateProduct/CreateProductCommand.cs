@@ -4,7 +4,7 @@ using ProductService.Application.DTOs.Response;
 
 namespace ProductService.Application.Commands.Product.CreateProduct
 {
-    public sealed record CreateProductCommand(ProductRequestDTO requestDTO) : IRequest<ProductResponseDTO>
+    public sealed record CreateProductCommand(ProductRequestDTO RequestDTO) : IRequest<ProductResponseDTO>
     {
     }
 }

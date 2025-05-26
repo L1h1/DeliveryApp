@@ -23,17 +23,17 @@ namespace ProductService.Application.Commands.Product.UpdateProduct
 
         public async Task<ProductResponseDTO> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
         {
-            var existingProduct = await _productRepository.GetByIdAsync(request.id, cancellationToken);
+            var existingProduct = await _productRepository.GetByIdAsync(request.Id, cancellationToken);
 
             if (existingProduct is null)
             {
                 throw new NotFoundException("Product with given id not found.");
             }
 
-            await UpdateCategoriesIfChangedAsync(existingProduct, request.requestDTO.CategoryIds, cancellationToken);
-            await UpdateManufacturerIfChangedAsync(existingProduct, request.requestDTO.ManufacturerId, cancellationToken);
+            await UpdateCategoriesIfChangedAsync(existingProduct, request.RequestDTO.CategoryIds, cancellationToken);
+            await UpdateManufacturerIfChangedAsync(existingProduct, request.RequestDTO.ManufacturerId, cancellationToken);
 
-            _mapper.Map(request.requestDTO, existingProduct);
+            _mapper.Map(request.RequestDTO, existingProduct);
 
             existingProduct = await _productRepository.UpdateAsync(existingProduct, cancellationToken);
 
@@ -45,7 +45,6 @@ namespace ProductService.Application.Commands.Product.UpdateProduct
             if (product.ManufacturerId != newManufacturerId)
             {
                 var manufacturer = await _manufacturerRepository.GetByIdAsync(newManufacturerId, cancellationToken);
-
 
                 if (manufacturer is null)
                 {

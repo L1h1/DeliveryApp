@@ -15,7 +15,7 @@ namespace ProductService.Application.Commands.ProductDetails.DeleteProductDetail
 
         public async Task<Unit> Handle(DeleteProductDetailsCommand request, CancellationToken cancellationToken)
         {
-            var existingDetails = await _productDetailsRepository.GetByIdAsync(request.id, cancellationToken);
+            var existingDetails = await _productDetailsRepository.GetByIdAsync(request.Id, cancellationToken);
 
             if (existingDetails is null)
             {

@@ -2,10 +2,9 @@
 {
     public class Category
     {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-        public string NormalizedName { get; set; }
-
+        required public Guid Id { get; set; }
+        required public string Name { get; set; }
+        required public string NormalizedName { get; set; }
         public List<Product> Products { get; set; } = new ();
     }
 }

@@ -19,14 +19,14 @@ namespace ProductService.Application.Commands.Manufacturer.UpdateManufacturer
 
         public async Task<ManufacturerResponseDTO> Handle(UpdateManufacturerCommand request, CancellationToken cancellationToken)
         {
-            var existingManufacturer = await _manufacturerRepository.GetByIdAsync(request.id, cancellationToken);
+            var existingManufacturer = await _manufacturerRepository.GetByIdAsync(request.Id, cancellationToken);
 
             if (existingManufacturer is null)
             {
                 throw new NotFoundException("Manufacturer with given id not found.");
             }
 
-            var normalizedName = request.requestDTO.Name.Trim().ToLower();
+            var normalizedName = request.RequestDTO.Name.Trim().ToLower();
             var manufacturerWithSameName = await _manufacturerRepository.GetByNameAsync(normalizedName, cancellationToken);
 
             if (manufacturerWithSameName is not null && manufacturerWithSameName.Id != existingManufacturer.Id)
@@ -34,7 +34,7 @@ namespace ProductService.Application.Commands.Manufacturer.UpdateManufacturer
                 throw new BadRequestException("Another manufacturer with given name already exists.");
             }
 
-            _mapper.Map(request.requestDTO, existingManufacturer);
+            _mapper.Map(request.RequestDTO, existingManufacturer);
 
             existingManufacturer = await _manufacturerRepository.UpdateAsync(existingManufacturer, cancellationToken);
 

@@ -1,3 +1,4 @@
+using Microsoft.Extensions.FileProviders;
 using ProductService.API.Middleware;
 using ProductService.Application;
 using ProductService.Infrastructure;
@@ -26,6 +27,13 @@ if (app.Environment.IsDevelopment())
 
     app.ApplyMigrations();
 }
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), "Uploads")),
+    RequestPath = "/Uploads",
+});
 
 app.UseHttpsRedirection();
 

@@ -19,9 +19,9 @@ namespace ProductService.Application.Queries.Manufacturer.GetAllManufacturers
 
         public async Task<PaginatedResponseDTO<ManufacturerResponseDTO>> Handle(GetAllManufacturersQuery request, CancellationToken cancellationToken)
         {
-            var data = await _manufacturerRepository.ListAsync(request.dto.PageNumber, request.dto.PageSize, cancellationToken: cancellationToken);
+            var data = await _manufacturerRepository.ListAsync(request.Dto.PageNumber, request.Dto.PageSize, cancellationToken: cancellationToken);
 
-            if (!data.Items.Any())
+            if (data.Items.Count == 0)
             {
                 throw new NotFoundException("No manufacturers found.");
             }

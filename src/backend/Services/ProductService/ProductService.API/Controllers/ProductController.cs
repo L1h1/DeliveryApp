@@ -92,7 +92,7 @@ namespace ProductService.API.Controllers
         public async Task<IActionResult> DeleteProduct([FromRoute] Guid id, CancellationToken cancellationToken)
         {
             var command = new DeleteProductCommand(id);
-            var response = await _mediator.Send(command, cancellationToken);
+            await _mediator.Send(command, cancellationToken);
 
             return Ok(new { Message = "Product deleted successfully." });
         }

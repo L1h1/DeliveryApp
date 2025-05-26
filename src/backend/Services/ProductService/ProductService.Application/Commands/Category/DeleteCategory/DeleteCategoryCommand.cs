@@ -2,7 +2,7 @@
 
 namespace ProductService.Application.Commands.Category.DeleteCategory
 {
-    public sealed record DeleteCategoryCommand(Guid id) : IRequest<Unit>
+    public sealed record DeleteCategoryCommand(Guid Id) : IRequest<Unit>
     {
     }
 }

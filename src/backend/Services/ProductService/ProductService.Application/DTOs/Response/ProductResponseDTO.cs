@@ -8,5 +8,6 @@
         required public string UnitOfMeasure { get; init; }
         required public string Country { get; init; }
         required public List<string> CategoryNames { get; init; }
+        public string? Thumbnail { get; init; }
     }
 }

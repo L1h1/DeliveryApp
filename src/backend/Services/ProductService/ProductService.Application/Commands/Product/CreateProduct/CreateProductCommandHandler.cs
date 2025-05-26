@@ -23,18 +23,18 @@ namespace ProductService.Application.Commands.Product.CreateProduct
 
         public async Task<ProductResponseDTO> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
-            var product = _mapper.Map<Domain.Entities.Product>(request.requestDTO);
+            var product = _mapper.Map<Domain.Entities.Product>(request.RequestDTO);
 
-            var categories = await _categoryRepository.ListByIdsAsync(request.requestDTO.CategoryIds, cancellationToken);
+            var categories = await _categoryRepository.ListByIdsAsync(request.RequestDTO.CategoryIds, cancellationToken);
 
-            if (categories.Count < request.requestDTO.CategoryIds.Count)
+            if (categories.Count < request.RequestDTO.CategoryIds.Count)
             {
                 throw new NotFoundException("Some of the categories not found.");
             }
 
             product.Categories = categories.ToList();
 
-            var existingManufacturer = await _manufacturerRepository.GetByIdAsync(request.requestDTO.ManufacturerId, cancellationToken);
+            var existingManufacturer = await _manufacturerRepository.GetByIdAsync(request.RequestDTO.ManufacturerId, cancellationToken);
 
             if (existingManufacturer is null)
             {

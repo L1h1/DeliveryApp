@@ -4,7 +4,7 @@ using ProductService.Application.DTOs.Response;
 
 namespace ProductService.Application.Queries.Manufacturer.GetAllManufacturers
 {
-    public sealed record GetAllManufacturersQuery(PageRequestDTO dto) : IRequest<PaginatedResponseDTO<ManufacturerResponseDTO>>
+    public sealed record GetAllManufacturersQuery(PageRequestDTO Dto) : IRequest<PaginatedResponseDTO<ManufacturerResponseDTO>>
     {
     }
 }

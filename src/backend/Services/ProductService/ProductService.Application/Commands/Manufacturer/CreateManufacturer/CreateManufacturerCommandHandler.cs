@@ -19,14 +19,14 @@ namespace ProductService.Application.Commands.Manufacturer.CreateManufacturer
 
         public async Task<ManufacturerResponseDTO> Handle(CreateManufacturerCommand request, CancellationToken cancellationToken)
         {
-            var existingManufacturer = await _manufacturerRepository.GetByNameAsync(request.requestDTO.Name.ToLower());
+            var existingManufacturer = await _manufacturerRepository.GetByNameAsync(request.RequestDTO.Name.ToLower(), cancellationToken);
 
             if (existingManufacturer is not null)
             {
                 throw new BadRequestException("Manufacturer with given name already exists.");
             }
 
-            var manufacturer = _mapper.Map<Domain.Entities.Manufacturer>(request.requestDTO);
+            var manufacturer = _mapper.Map<Domain.Entities.Manufacturer>(request.RequestDTO);
 
             manufacturer = await _manufacturerRepository.AddAsync(manufacturer, cancellationToken);
 

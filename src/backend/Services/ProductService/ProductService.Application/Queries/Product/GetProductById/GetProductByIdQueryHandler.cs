@@ -21,14 +21,14 @@ namespace ProductService.Application.Queries.Product.GetProductById
 
         public async Task<DetailedProductResponseDTO> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
         {
-            var generalData = await _productRepository.GetByIdAsync(request.id);
+            var generalData = await _productRepository.GetByIdAsync(request.Id, cancellationToken);
 
             if (generalData is null)
             {
                 throw new NotFoundException("Product not found.");
             }
 
-            var productDetails = await _productDetailsRepository.GetByIdAsync(request.id, cancellationToken);
+            var productDetails = await _productDetailsRepository.GetByIdAsync(request.Id, cancellationToken);
 
             if (productDetails is null)
             {

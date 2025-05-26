@@ -4,7 +4,7 @@ using ProductService.Application.DTOs.Response;
 
 namespace ProductService.Application.Queries.Product.GetFilteredProducts
 {
-    public sealed record GetFilteredProductsQuery(FilterProductsRequestDTO dto) : IRequest<PaginatedResponseDTO<ProductResponseDTO>>
+    public sealed record GetFilteredProductsQuery(FilterProductsRequestDTO Dto) : IRequest<PaginatedResponseDTO<ProductResponseDTO>>
     {
     }
 }

@@ -4,7 +4,7 @@ using ProductService.Application.DTOs.Response;
 
 namespace ProductService.Application.Commands.Manufacturer.CreateManufacturer
 {
-    public sealed record CreateManufacturerCommand(ManufacturerRequestDTO requestDTO) : IRequest<ManufacturerResponseDTO>
+    public sealed record CreateManufacturerCommand(ManufacturerRequestDTO RequestDTO) : IRequest<ManufacturerResponseDTO>
     {
     }
 }

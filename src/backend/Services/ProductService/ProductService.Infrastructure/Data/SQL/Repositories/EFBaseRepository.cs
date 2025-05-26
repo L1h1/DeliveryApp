@@ -19,8 +19,6 @@ namespace ProductService.Infrastructure.Data.SQL.Repositories
 
         public async Task<T?> AddAsync(T tEntity, CancellationToken cancellationToken = default)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
             await _dbSet.AddAsync(tEntity, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
 
@@ -29,18 +27,14 @@ namespace ProductService.Infrastructure.Data.SQL.Repositories
 
         public async Task DeleteAsync(T tEntity, CancellationToken cancellationToken = default)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
             _dbSet.Remove(tEntity);
             await _context.SaveChangesAsync(cancellationToken);
         }
 
         public async Task<PaginatedResponseDTO<T>> ListAsync(int pageNumber, int pageSize, Expression<Func<T, bool>>? filter = null, CancellationToken cancellationToken = default)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            var data = new List<T>();
-            int totalCount = default;
+            List<T> data;
+            int totalCount;
 
             if (filter is not null)
             {
@@ -73,8 +67,6 @@ namespace ProductService.Infrastructure.Data.SQL.Repositories
 
         public async Task<T?> UpdateAsync(T tEntity, CancellationToken cancellationToken = default)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
             _dbSet.Update(tEntity);
             await _context.SaveChangesAsync(cancellationToken);
 

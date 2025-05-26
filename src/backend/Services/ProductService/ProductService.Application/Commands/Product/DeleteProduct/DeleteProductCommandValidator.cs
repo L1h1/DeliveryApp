@@ -6,7 +6,7 @@ namespace ProductService.Application.Commands.Product.DeleteProduct
     {
         public DeleteProductCommandValidator()
         {
-            RuleFor(x => x.id)
+            RuleFor(x => x.Id)
                 .NotEmpty().WithMessage("Product id is empty.");
         }
     }

@@ -15,7 +15,7 @@ namespace ProductService.Application.Commands.Category.DeleteCategory
 
         public async Task<Unit> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
         {
-            var existingCategory = await _categoryRepository.GetByIdAsync(request.id, cancellationToken);
+            var existingCategory = await _categoryRepository.GetByIdAsync(request.Id, cancellationToken);
 
             if (existingCategory is null)
             {

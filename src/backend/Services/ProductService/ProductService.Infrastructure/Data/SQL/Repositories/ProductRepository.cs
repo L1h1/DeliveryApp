@@ -15,8 +15,6 @@ namespace ProductService.Infrastructure.Data.SQL.Repositories
 
         public async Task<Product?> GetByIdAsync(Guid productId, CancellationToken cancellationToken = default)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
             var result = await _dbSet
                 .Include(p => p.Manufacturer)
                 .Include(p => p.Categories)
@@ -27,8 +25,6 @@ namespace ProductService.Infrastructure.Data.SQL.Repositories
 
         public async Task<PaginatedResponseDTO<Product>> ListWithNestedAsync(int pageNumber, int pageSize, Expression<Func<Product, bool>>? filter = null, CancellationToken cancellationToken = default)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
             var data = new List<Product>();
             var query = _dbSet
                 .Include(p => p.Manufacturer)

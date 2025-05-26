@@ -4,7 +4,7 @@ using ProductService.Application.DTOs.Response;
 
 namespace ProductService.Application.Commands.Manufacturer.UpdateManufacturer
 {
-    public sealed record UpdateManufacturerCommand(Guid id, ManufacturerRequestDTO requestDTO) : IRequest<ManufacturerResponseDTO>
+    public sealed record UpdateManufacturerCommand(Guid Id, ManufacturerRequestDTO RequestDTO) : IRequest<ManufacturerResponseDTO>
     {
     }
 }

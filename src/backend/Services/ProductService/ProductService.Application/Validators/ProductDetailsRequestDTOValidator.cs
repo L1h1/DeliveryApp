@@ -15,11 +15,6 @@ namespace ProductService.Application.Validators
                 .MaximumLength(256).WithMessage("Description lengt can't be more than 256.")
                 .When(x => x.Description is not null);
 
-            RuleFor(x => x.Images)
-                .NotEmpty().WithMessage("Image list is empty.")
-                .Must(x => x!.Count <= 7).WithMessage("Image list can't contain more than 7 images.")
-                .When(x => x.Images is not null);
-
             RuleFor(x => x.Composition)
                 .NotEmpty().WithMessage("Composition list is empty.")
                 .Must(x => x!.Count <= 20).WithMessage("Product composition can't have more than 20 items.")

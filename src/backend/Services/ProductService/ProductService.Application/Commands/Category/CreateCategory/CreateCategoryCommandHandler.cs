@@ -19,7 +19,7 @@ namespace ProductService.Application.Commands.Category.CreateCategory
 
         public async Task<CategoryResponseDTO> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
         {
-            var normalizedName = request.requestDTO.Name.Trim().ToLower();
+            var normalizedName = request.RequestDTO.Name.Trim().ToLower();
             var existingCategory = await _categoryRepository.GetByNameAsync(normalizedName, cancellationToken);
 
             if (existingCategory is not null)
@@ -27,7 +27,7 @@ namespace ProductService.Application.Commands.Category.CreateCategory
                 throw new BadRequestException("Category with given name already exists.");
             }
 
-            var category = _mapper.Map<Domain.Entities.Category>(request.requestDTO);
+            var category = _mapper.Map<Domain.Entities.Category>(request.RequestDTO);
 
             await _categoryRepository.AddAsync(category, cancellationToken);
 

@@ -20,11 +20,11 @@ namespace ProductService.Application.Queries.Product.GetAllProducts
         public async Task<PaginatedResponseDTO<ProductResponseDTO>> Handle(GetAllProductsQuery request, CancellationToken cancellationToken)
         {
             var data = await _productRepository.ListWithNestedAsync(
-                request.dto.PageNumber,
-                request.dto.PageSize,
+                request.Dto.PageNumber,
+                request.Dto.PageSize,
                 cancellationToken: cancellationToken);
 
-            if (!data.Items.Any())
+            if (data.Items.Count == 0)
             {
                 throw new NotFoundException("No products found.");
             }

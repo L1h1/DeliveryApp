@@ -20,14 +20,14 @@ namespace ProductService.Application.Commands.Category.UpdateCategory
 
         public async Task<CategoryResponseDTO> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
         {
-            var existingCategory = await _categoryRepository.GetByIdAsync(request.id, cancellationToken);
+            var existingCategory = await _categoryRepository.GetByIdAsync(request.Id, cancellationToken);
 
             if (existingCategory is null)
             {
                 throw new NotFoundException("Category with given id not found.");
             }
 
-            var normalizedName = request.requestDTO.Name.Trim().ToLower();
+            var normalizedName = request.RequestDTO.Name.Trim().ToLower();
             var categoryWithSameName = await _categoryRepository.GetByNameAsync(normalizedName, cancellationToken);
 
             if (categoryWithSameName is not null && categoryWithSameName.Id != existingCategory.Id)
@@ -35,7 +35,7 @@ namespace ProductService.Application.Commands.Category.UpdateCategory
                 throw new BadRequestException("Another category with this name already exists.");
             }
 
-            _mapper.Map(request.requestDTO, existingCategory);
+            _mapper.Map(request.RequestDTO, existingCategory);
 
             existingCategory = await _categoryRepository.UpdateAsync(existingCategory, cancellationToken);
 

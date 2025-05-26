@@ -6,7 +6,7 @@ namespace ProductService.Application.Commands.Manufacturer.DeleteManufacturer
     {
         public DeleteManufacturerCommandValidator()
         {
-            RuleFor(m => m.id)
+            RuleFor(m => m.Id)
                 .NotEmpty().WithMessage("Manufacturer id is empty.");
         }
     }

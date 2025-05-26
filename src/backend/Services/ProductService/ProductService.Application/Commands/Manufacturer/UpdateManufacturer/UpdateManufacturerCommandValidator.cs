@@ -6,7 +6,7 @@ namespace ProductService.Application.Commands.Manufacturer.UpdateManufacturer
     {
         public UpdateManufacturerCommandValidator()
         {
-            RuleFor(x => x.id)
+            RuleFor(x => x.Id)
                 .NotEmpty().WithMessage("Manufacturer id is empty.");
         }
     }

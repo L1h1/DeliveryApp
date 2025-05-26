@@ -15,7 +15,7 @@ namespace ProductService.Application.Commands.Manufacturer.DeleteManufacturer
 
         public async Task<Unit> Handle(DeleteManufacturerCommand request, CancellationToken cancellationToken)
         {
-            var existingManufacturer = await _manufacturerRepository.GetByIdAsync(request.id, cancellationToken);
+            var existingManufacturer = await _manufacturerRepository.GetByIdAsync(request.Id, cancellationToken);
 
             if (existingManufacturer is null)
             {
