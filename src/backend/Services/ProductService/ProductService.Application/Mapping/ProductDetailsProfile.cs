@@ -9,8 +9,13 @@ namespace ProductService.Application.Mapping
     {
         public ProductDetailsProfile()
         {
-            CreateMap<ProductDetailsRequestDTO, ProductDetails>();
-            CreateMap<ProductDetails, ProductDetailsResponseDTO>();
+            CreateMap<ProductDetailsRequestDTO, ProductDetails>()
+                .ForMember(dest => dest.Id, src => src.MapFrom(src => src.ProductId));
+
+            CreateMap<ProductDetails, DetailedProductResponseDTO>();
+
+            CreateMap<ProductDetails, ProductDetailsResponseDTO>()
+                .ForMember(dest => dest.ProductId, src => src.MapFrom(src => src.Id));
         }
     }
 }

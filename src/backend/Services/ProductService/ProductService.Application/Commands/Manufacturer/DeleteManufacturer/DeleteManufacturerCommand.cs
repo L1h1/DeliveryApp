@@ -2,7 +2,7 @@
 
 namespace ProductService.Application.Commands.Manufacturer.DeleteManufacturer
 {
-    public sealed record DeleteManufacturerCommand(string id) : IRequest<Unit>
+    public sealed record DeleteManufacturerCommand(Guid id) : IRequest<Unit>
     {
     }
 }

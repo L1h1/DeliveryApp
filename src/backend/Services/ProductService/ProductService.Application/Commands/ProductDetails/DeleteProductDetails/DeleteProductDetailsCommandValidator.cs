@@ -1,6 +1,13 @@
-﻿namespace ProductService.Application.Commands.ProductDetails.DeleteProductDetails
+﻿using FluentValidation;
+
+namespace ProductService.Application.Commands.ProductDetails.DeleteProductDetails
 {
-    internal class DeleteProductDetailsCommandValidator
+    public class DeleteProductDetailsCommandValidator : AbstractValidator<DeleteProductDetailsCommand>
     {
+        public DeleteProductDetailsCommandValidator()
+        {
+            RuleFor(x => x.id)
+                .NotEmpty().WithMessage("Product id is empty.");
+        }
     }
 }

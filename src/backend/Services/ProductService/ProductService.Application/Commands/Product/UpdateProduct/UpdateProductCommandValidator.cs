@@ -7,8 +7,7 @@ namespace ProductService.Application.Commands.Product.UpdateProduct
         public UpdateProductCommandValidator()
         {
             RuleFor(x => x.id)
-                .NotEmpty().WithMessage("Product id is empty.")
-                .Must(x => Guid.TryParse(x, out _));
+                .NotEmpty().WithMessage("Product id is empty.");
         }
     }
 }

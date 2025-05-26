@@ -32,7 +32,7 @@ namespace ProductService.Application.Queries.Product.GetFilteredProducts
                     product.Categories.Any(c => dto.CategoryIds.Contains(c.Id))
               );
 
-            var data = await _productRepository.ListAsync(
+            var data = await _productRepository.ListWithNestedAsync(
                 dto.Page.PageNumber,
                 dto.Page.PageSize,
                 filter,

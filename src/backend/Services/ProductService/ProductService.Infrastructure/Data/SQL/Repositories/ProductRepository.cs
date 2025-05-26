@@ -13,14 +13,14 @@ namespace ProductService.Infrastructure.Data.SQL.Repositories
         {
         }
 
-        public async Task<Product?> GetByIdAsync(string productId, CancellationToken cancellationToken = default)
+        public async Task<Product?> GetByIdAsync(Guid productId, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             var result = await _dbSet
                 .Include(p => p.Manufacturer)
                 .Include(p => p.Categories)
-                .FirstOrDefaultAsync(p => p.Id == Guid.Parse(productId), cancellationToken);
+                .FirstOrDefaultAsync(p => p.Id == productId, cancellationToken);
 
             return result;
         }

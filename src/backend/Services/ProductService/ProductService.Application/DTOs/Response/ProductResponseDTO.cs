@@ -7,5 +7,6 @@
         required public decimal Price { get; init; }
         required public string UnitOfMeasure { get; init; }
         required public string Country { get; init; }
+        required public List<string> CategoryNames { get; init; }
     }
 }

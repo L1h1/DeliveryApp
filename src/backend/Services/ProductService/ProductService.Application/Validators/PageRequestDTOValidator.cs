@@ -11,7 +11,7 @@ namespace ProductService.Application.Validators
                 .NotEmpty().WithMessage("Invalid current page.")
                 .GreaterThan(0).WithMessage("Current page can't be less than 1.");
 
-            RuleFor(q => q.PageNumber)
+            RuleFor(q => q.PageSize)
                 .NotEmpty().WithMessage("Invalid page size.")
                 .GreaterThan(0).WithMessage("Page size can't be less than 1.");
         }

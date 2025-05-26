@@ -2,7 +2,7 @@
 
 namespace ProductService.Application.Commands.Product.DeleteProduct
 {
-    public sealed record DeleteProductCommand(string id) : IRequest<Unit>
+    public sealed record DeleteProductCommand(Guid id) : IRequest<Unit>
     {
     }
 }

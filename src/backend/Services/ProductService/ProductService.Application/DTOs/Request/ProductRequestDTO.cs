@@ -9,5 +9,6 @@ namespace ProductService.Application.DTOs.Request
         required public UnitOfMeasure UnitOfMeasure { get; init; }
         required public bool IsAvailable { get; init; }
         required public Guid ManufacturerId { get; init; }
+        required public List<Guid> CategoryIds { get; init; }
     }
 }

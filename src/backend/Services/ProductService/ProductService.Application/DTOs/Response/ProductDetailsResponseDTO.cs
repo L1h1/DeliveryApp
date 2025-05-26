@@ -6,7 +6,7 @@ namespace ProductService.Application.DTOs.Response
     {
         required public string ProductId { get; init; }
         public string? Description { get; init; }
-        public NutritionInfo? NutritionInfo { get; init; }
+        public NutritionInfo? Nutrition { get; init; }
         public List<string>? Composition { get; init; }
         public List<string>? Images { get; init; }
     }

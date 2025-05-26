@@ -11,7 +11,7 @@ namespace ProductService.Infrastructure.Data.SQL.Repositories
         {
         }
 
-        public async Task<Category?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
+        public async Task<Category?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -25,6 +25,15 @@ namespace ProductService.Infrastructure.Data.SQL.Repositories
             cancellationToken.ThrowIfCancellationRequested();
 
             var result = await _dbSet.FirstOrDefaultAsync(c => c.NormalizedName == normalizedName, cancellationToken);
+
+            return result;
+        }
+
+        public async Task<ICollection<Category>>? ListByIdsAsync(ICollection<Guid> ids, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var result = await _dbSet.Where(c => ids.Contains(c.Id)).ToListAsync();
 
             return result;
         }

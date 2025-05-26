@@ -26,7 +26,7 @@ namespace ProductService.Application.Commands.ProductDetails.UpdateProductDetail
                 throw new NotFoundException("Details for given product not found.");
             }
 
-            _mapper.Map(request, existingDetails);
+            _mapper.Map(request.requestDTO, existingDetails);
 
             existingDetails = await _productDetailsRepository.UpdateAsync(existingDetails, cancellationToken);
 

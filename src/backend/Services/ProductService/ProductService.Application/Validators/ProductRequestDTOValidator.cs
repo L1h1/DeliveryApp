@@ -20,6 +20,10 @@ namespace ProductService.Application.Validators
 
             RuleFor(p => p.UnitOfMeasure)
                 .NotEmpty().WithMessage("Product unitOfMeasure is empty.");
+
+            RuleFor(p => p.CategoryIds)
+                .NotEmpty().WithMessage("Product category list is empty.")
+                .Must(p => p.Count <= 10).WithMessage("Product can't have more than 10 categories.");
         }
     }
 }

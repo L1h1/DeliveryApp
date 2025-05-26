@@ -11,7 +11,7 @@ namespace ProductService.Infrastructure.Data.SQL.Repositories
         {
         }
 
-        public async Task<Manufacturer> GetByIdAsync(string id, CancellationToken cancellationToken = default)
+        public async Task<Manufacturer> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 

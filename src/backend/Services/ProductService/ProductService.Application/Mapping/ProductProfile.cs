@@ -11,7 +11,8 @@ namespace ProductService.Application.Mapping
         {
             CreateMap<Product, ProductResponseDTO>()
                 .ForMember(p => p.UnitOfMeasure, dest => dest.MapFrom(src => src.UnitOfMeasure.ToString()))
-                .ForMember(p => p.Country, dest => dest.MapFrom(src => src.Manufacturer.Country));
+                .ForMember(p => p.Country, dest => dest.MapFrom(src => src.Manufacturer.Country))
+                .ForMember(p => p.CategoryNames, dest => dest.MapFrom(src => src.Categories.Select(c => c.Name)));
 
             CreateMap<Product, DetailedProductResponseDTO>()
                 .ForMember(p => p.UnitOfMeasure, dest => dest.MapFrom(src => src.UnitOfMeasure.ToString()))

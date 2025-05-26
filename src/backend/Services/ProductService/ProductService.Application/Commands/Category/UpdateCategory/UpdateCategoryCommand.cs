@@ -4,7 +4,7 @@ using ProductService.Application.DTOs.Response;
 
 namespace ProductService.Application.Commands.Category.UpdateCategory
 {
-    public sealed record UpdateCategoryCommand(string id, CategoryRequestDTO requestDTO) : IRequest<CategoryResponseDTO>
+    public sealed record UpdateCategoryCommand(Guid id, CategoryRequestDTO requestDTO) : IRequest<CategoryResponseDTO>
     {
     }
 }

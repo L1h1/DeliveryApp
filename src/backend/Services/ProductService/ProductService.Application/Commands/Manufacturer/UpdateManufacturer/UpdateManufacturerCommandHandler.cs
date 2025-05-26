@@ -26,6 +26,14 @@ namespace ProductService.Application.Commands.Manufacturer.UpdateManufacturer
                 throw new NotFoundException("Manufacturer with given id not found.");
             }
 
+            var normalizedName = request.requestDTO.Name.Trim().ToLower();
+            var manufacturerWithSameName = await _manufacturerRepository.GetByNameAsync(normalizedName, cancellationToken);
+
+            if (manufacturerWithSameName is not null && manufacturerWithSameName.Id != existingManufacturer.Id)
+            {
+                throw new BadRequestException("Another manufacturer with given name already exists.");
+            }
+
             _mapper.Map(request.requestDTO, existingManufacturer);
 
             existingManufacturer = await _manufacturerRepository.UpdateAsync(existingManufacturer, cancellationToken);

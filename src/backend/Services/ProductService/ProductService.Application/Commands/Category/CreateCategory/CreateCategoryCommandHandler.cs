@@ -19,7 +19,8 @@ namespace ProductService.Application.Commands.Category.CreateCategory
 
         public async Task<CategoryResponseDTO> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
         {
-            var existingCategory = await _categoryRepository.GetByNameAsync(request.requestDTO.Name, cancellationToken);
+            var normalizedName = request.requestDTO.Name.Trim().ToLower();
+            var existingCategory = await _categoryRepository.GetByNameAsync(normalizedName, cancellationToken);
 
             if (existingCategory is not null)
             {
