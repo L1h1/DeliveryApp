@@ -1,0 +1,21 @@
+services:
+  orderservice.api:
+    image: ${DOCKER_REGISTRY-}orderserviceapi
+    build:
+      context: .
+      dockerfile: OrderService.API/Dockerfile
+    ports:
+      - 5004:5004
+      - 5005:5005
+  orderservice.mongo:
+    image: mongo:latest
+    container_name: orderservice.mongo
+    ports:
+      - 27002:27017
+    volumes:
+      - mongoorders:/var/lb/mongo/data
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongoadmin
+      - MONGO_INITDB_ROOT_PASSWORD=mongoadmin
+volumes:
+  mongoorders:
