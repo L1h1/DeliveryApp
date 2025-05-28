@@ -46,8 +46,9 @@ namespace OrderService.Infrastructure.Data
                     new CreateIndexOptions { Name = "idx_clientId" }),
 
                 new (
-                    indexKeysBuilder.Descending(o => o.CreatedAt),
-                    new CreateIndexOptions { Name = "idx_createdAt" }),
+                    indexKeysBuilder.Ascending(o => o.CourierId)
+                    .Descending(o => o.OrderStatus),
+                    new CreateIndexOptions { Name = "idx_courierId_and_orderStatus" }),
             };
 
             collection.Indexes.CreateMany(indexModels);

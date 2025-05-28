@@ -14,9 +14,11 @@ namespace OrderService.Infrastructure.Data.Repositories
             _context = context;
         }
 
-        public async Task CreateAsync(Order order, CancellationToken cancellationToken = default)
+        public async Task<Order> CreateAsync(Order order, CancellationToken cancellationToken = default)
         {
             await _context.Orders.InsertOneAsync(order, cancellationToken: cancellationToken);
+
+            return order;
         }
 
         public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
@@ -24,7 +26,7 @@ namespace OrderService.Infrastructure.Data.Repositories
             await _context.Orders.DeleteOneAsync(o => o.Id == id, cancellationToken: cancellationToken);
         }
 
-        public async Task<Order> GetOrderByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<Order> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             var response = await _context.Orders.Find(o => o.Id == id).FirstOrDefaultAsync(cancellationToken);
 

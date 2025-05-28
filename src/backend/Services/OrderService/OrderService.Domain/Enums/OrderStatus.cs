@@ -4,6 +4,7 @@
     {
         Created,
         Processing,
+        Assigned,
         Delivering,
         Delivered
     }

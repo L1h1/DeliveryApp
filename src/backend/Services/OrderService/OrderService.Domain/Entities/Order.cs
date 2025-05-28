@@ -11,6 +11,7 @@ namespace OrderService.Domain.Entities
         public OrderStatus OrderStatus { get; set; }
         public decimal TotalPrice { get; set; }
         public List<OrderItem> Items { get; set; }
+        public string Address { get; set; }
         public string? ClientComment { get; set; }
     }
 }
