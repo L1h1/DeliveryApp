@@ -10,7 +10,7 @@ namespace ProductService.API.Controllers
 {
     [ApiController]
     [Route("api/manufacturers")]
-    public class ManufacturerController : Controller
+    public class ManufacturerController : ControllerBase
     {
         private readonly IMediator _mediator;
 

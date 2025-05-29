@@ -5,6 +5,7 @@ using ProductService.Infrastructure;
 using ProductService.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddEnvironmentVariables();
 
 // Add services to the container.
 builder.Services.AddInfrastructure(builder.Configuration);

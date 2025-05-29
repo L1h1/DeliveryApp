@@ -7,7 +7,6 @@ using ProductService.Application.Commands.ProductDetails.CreateProductDetails;
 using ProductService.Application.Commands.ProductDetails.DeleteProductDetails;
 using ProductService.Application.Commands.ProductDetails.UpdateProductDetails;
 using ProductService.Application.DTOs.Request;
-using ProductService.Application.Queries.Category.GetAllCategories;
 using ProductService.Application.Queries.Product.GetAllProducts;
 using ProductService.Application.Queries.Product.GetFilteredProducts;
 using ProductService.Application.Queries.Product.GetProductById;
@@ -16,7 +15,7 @@ namespace ProductService.API.Controllers
 {
     [ApiController]
     [Route("api/products")]
-    public class ProductController : Controller
+    public class ProductController : ControllerBase
     {
         private readonly IMediator _mediator;
 

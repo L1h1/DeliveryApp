@@ -7,7 +7,7 @@ namespace ProductService.API.Controllers
 {
     [ApiController]
     [Route("api/images")]
-    public class ImageController : Controller
+    public class ImageController : ControllerBase
     {
         private readonly IMediator _mediator;
 

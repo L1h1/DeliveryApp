@@ -399,3 +399,4 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+/src/backend/Services/ProductService/docker-compose.override.yml
