@@ -35,13 +35,20 @@ namespace ProductService.Application.Services
         public async Task<List<string>> SaveAlbumAsync(Guid productId, IEnumerable<IFormFile> files, CancellationToken cancellationToken = default)
         {
             var productFolder = Path.Combine(rootPath, "Products", productId.ToString());
-            var paths = new List<string>();
-
             Directory.CreateDirectory(productFolder);
 
-            foreach (var file in files)
+            var semaphoreSlim = new SemaphoreSlim(4);
+
+            var tasks = files.Select(async file =>
             {
-                if (file.Length > 0)
+                if (file.Length == 0)
+                {
+                    return null;
+                }
+
+                await semaphoreSlim.WaitAsync(cancellationToken);
+
+                try
                 {
                     var extension = Path.GetExtension(file.FileName);
                     var uniqueName = $"{Guid.NewGuid()}{extension}";
@@ -49,12 +56,17 @@ namespace ProductService.Application.Services
 
                     using var stream = new FileStream(filePath, FileMode.Create);
                     await file.CopyToAsync(stream, cancellationToken);
-
-                    paths.Add(filePath);
+                    return filePath;
                 }
-            }
+                finally
+                {
+                    semaphoreSlim.Release();
+                }
+            });
 
-            return paths;
+            var paths = await Task.WhenAll(tasks);
+
+            return paths.Where(path => path != null).ToList();
         }
 
         public void DeleteImages(List<string> paths)

@@ -25,7 +25,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 
-    app.ApplyMigrations();
+    await app.ApplyMigrations();
 }
 
 app.UseStaticFiles(new StaticFileOptions

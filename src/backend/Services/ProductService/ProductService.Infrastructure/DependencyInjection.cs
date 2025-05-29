@@ -1,10 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Conventions;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 using ProductService.Application.Interfaces.Repositories;
 using ProductService.Infrastructure.Data.NoSQL;
@@ -22,14 +18,6 @@ namespace ProductService.Infrastructure
 
             services.AddSingleton<IMongoClient>(mongoClient);
             services.AddSingleton<MongoDbContext>();
-
-            BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
-            ConventionRegistry.Register(
-                "camelCase",
-                new ConventionPack
-                {
-                    new CamelCaseElementNameConvention(),
-                }, _ => true);
 
             services.AddDbContext<EFDbContext>(options =>
             {
