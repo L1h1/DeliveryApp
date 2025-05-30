@@ -1,0 +1,33 @@
+services:
+  productservice.api:
+    image: ${DOCKER_REGISTRY-}productserviceapi
+    build:
+      context: .
+      dockerfile: ProductService.API/Dockerfile
+    ports:
+     - 5002:5002
+     - 5003:5003
+  productservice.postgres:
+    image: postgres:latest
+    container_name: productservice.postgres
+    environment:
+          - POSTGRES_DB=products
+          - POSTGRES_USER=postgres
+          - POSTGRES_PASSWORD=postgres
+    volumes:
+      - pgproduct:/var/lib/postgresql/data
+    ports:
+      - 5402:5432
+  productservice.mongo:
+    image: mongo:latest
+    container_name: productservice.mongo
+    ports:
+      - 27001:27017
+    volumes:
+      - mongoproduct:/var/lib/mongo/data
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongoadmin
+      - MONGO_INITDB_ROOT_PASSWORD=mongoadmin
+volumes:
+  pgproduct:
+  mongoproduct:  
