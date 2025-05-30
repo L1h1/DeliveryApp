@@ -399,4 +399,6 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
 /src/backend/Services/ProductService/docker-compose.override.yml
+/src/backend/Services/UserService/UserService.API/appsettings.json
