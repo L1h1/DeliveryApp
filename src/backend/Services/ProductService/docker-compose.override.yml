@@ -1,21 +1,21 @@
 services:
-  userservice.api:
+  productservice.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_HTTP_PORTS=5000
-      - ASPNETCORE_HTTPS_PORTS=5001
+      - ASPNETCORE_HTTP_PORTS=5002
+      - ASPNETCORE_HTTPS_PORTS=5003
     ports:
-      - "5000"
-      - "5001"
+      - "5002"
+      - "5003"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
   
-  userservice.grpc:
+  productservice.grpc:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_HTTP_PORTS=5100
-      - ASPNETCORE_HTTPS_PORTS=5101
+      - ASPNETCORE_HTTP_PORTS=5102
+      - ASPNETCORE_HTTPS_PORTS=5103
     ports:
-      - "5100"
-      - "5101"
+      - "5102"
+      - "5103"

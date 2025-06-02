@@ -31,6 +31,13 @@ namespace OrderService.Infrastructure.Data
                 {
                     new CamelCaseElementNameConvention(),
                 }, _ => true);
+
+            ConventionRegistry.Register(
+                "EnumAsString",
+                new ConventionPack
+                {
+                    new EnumRepresentationConvention(BsonType.String),
+                }, _ => true);
         }
 
         private void ConfigureEntities()

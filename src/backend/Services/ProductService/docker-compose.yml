@@ -4,30 +4,58 @@ services:
     build:
       context: .
       dockerfile: ProductService.API/Dockerfile
+    networks:
+      - delivery-net
     ports:
-     - 5002:5002
-     - 5003:5003
+      - 5002:5002
+      - 5003:5003
+    env_file:
+      - .env
+
   productservice.postgres:
     image: postgres:latest
     container_name: productservice.postgres
     environment:
-          - POSTGRES_DB=products
-          - POSTGRES_USER=postgres
-          - POSTGRES_PASSWORD=postgres
+          - POSTGRES_DB=${POSTGRES_DB}
+          - POSTGRES_USER=${POSTGRES_USER}
+          - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
       - pgproduct:/var/lib/postgresql/data
+    networks:
+      - delivery-net
     ports:
       - 5402:5432
+
   productservice.mongo:
     image: mongo:latest
     container_name: productservice.mongo
+    networks:
+      - delivery-net
     ports:
       - 27001:27017
     volumes:
       - mongoproduct:/var/lib/mongo/data
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=mongoadmin
-      - MONGO_INITDB_ROOT_PASSWORD=mongoadmin
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+
+  productservice.grpc:
+    image: ${DOCKER_REGISTRY-}productservicegrpc
+    build:
+      context: .
+      dockerfile: ProductService.Grpc/Dockerfile
+    networks:
+      - delivery-net
+    ports:
+      - 5102:5102
+      - 5103:5103
+    env_file:
+      - .env
+
 volumes:
   pgproduct:
   mongoproduct:  
+
+networks:
+  delivery-net:
+    external: true  
