@@ -13,9 +13,9 @@ namespace UserService.DAL
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddDAL(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddData(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<AppDbContext>(options => options.UseNpgsql(configuration.GetConnectionString("PostgreSQLConntection")));
+            services.AddDbContext<AppDbContext>(options => options.UseNpgsql(configuration.GetConnectionString("PostgreSQLConnection")));
 
             services.AddScoped<IUserRepository, UserRepository>();
 
@@ -28,6 +28,11 @@ namespace UserService.DAL
                 .AddEntityFrameworkStores<AppDbContext>()
                 .AddDefaultTokenProviders();
 
+            return services;
+        }
+
+        public static IServiceCollection AddJWTAuth(this IServiceCollection services, IConfiguration configuration)
+        {
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

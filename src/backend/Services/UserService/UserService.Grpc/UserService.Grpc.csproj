@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<UserSecretsId>4659ed7d-9b29-498c-964e-ca8aa75e06c7</UserSecretsId>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Protobuf Include="Protos\user.proto" GrpcServices="Server" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Grpc.AspNetCore" Version="2.57.0" />
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="Protos\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\UserService.BLL\UserService.BLL.csproj" />
+	  <ProjectReference Include="..\UserService.DAL\UserService.DAL.csproj" />
+
+	</ItemGroup>
+
+</Project>

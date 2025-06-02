@@ -4,21 +4,49 @@ services:
     build:
       context: .
       dockerfile: UserService.API/Dockerfile
+    networks:
+      - delivery-net
     ports:
       - 5000:5001
       - 5001:5001
+    depends_on:
+      - userservice.database
+    env_file:
+      - .env
+
+  userservice.grpc:
+    image: ${DOCKER_REGISTRY-}userservicegrpc
+    build:
+      context: .
+      dockerfile: UserService.Grpc/Dockerfile
+    networks:
+      - delivery-net
+    ports:
+      - 5100:5100
+      - 5101:5101
+    depends_on:
+      - userservice.database
+    env_file:
+      - .env
 
   userservice.database:
     image: postgres:latest
     container_name: userservice.database
-    environment:
-      - POSTGRES_DB=users
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-    volumes:
-      - pgdata:/var/lib/postgresql/data
+    networks:
+      - delivery-net
     ports:
       - 5401:5432
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
 
 volumes:
   pgdata:
+
+networks:
+  delivery-net:
+    external: true
