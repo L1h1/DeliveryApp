@@ -7,7 +7,6 @@ using MimeKit.Text;
 using UserService.BLL.Constants;
 using UserService.BLL.Interfaces;
 
-
 namespace UserService.BLL.Services
 {
     public class EmailService : IEmailService

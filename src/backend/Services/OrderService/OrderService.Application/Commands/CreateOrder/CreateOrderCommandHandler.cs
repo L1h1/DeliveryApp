@@ -14,13 +14,23 @@ namespace OrderService.Application.Commands.CreateOrder
         private readonly IOrderRepository _orderRepository;
         private readonly IProductService _productService;
         private readonly IUserService _userService;
+        private readonly IBackgroundJobService _backgroundJobService;
+        private readonly IBillService _billService;
 
-        public CreateOrderCommandHandler(IMapper mapper, IOrderRepository orderRepository, IProductService productService, IUserService userService)
+        public CreateOrderCommandHandler(
+            IMapper mapper, 
+            IOrderRepository orderRepository,
+            IProductService productService,
+            IUserService userService,
+            IBackgroundJobService backgroundJobService,
+            IBillService billService)
         {
             _mapper = mapper;
             _orderRepository = orderRepository;
             _productService = productService;
             _userService = userService;
+            _backgroundJobService = backgroundJobService;
+            _billService = billService;
         }
 
         public async Task<OrderResponseDTO> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
@@ -58,6 +68,7 @@ namespace OrderService.Application.Commands.CreateOrder
             order.TotalPrice = order.Items.Sum(x => x.Quantity * x.Price);
 
             await _orderRepository.CreateAsync(order, cancellationToken);
+            _backgroundJobService.CreateJob(() => _billService.CreateBill(order, cancellationToken));
 
             return _mapper.Map<OrderResponseDTO>(order);
         }

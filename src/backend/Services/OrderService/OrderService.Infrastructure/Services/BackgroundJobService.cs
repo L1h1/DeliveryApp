@@ -6,11 +6,18 @@ namespace OrderService.Infrastructure.Services
 {
     public class BackgroundJobService : IBackgroundJobService
     {
+        private readonly IBackgroundJobClient _backgroundJobClient;
         private readonly IRecurringJobManager _recurringJobManager;
 
-        public BackgroundJobService(IRecurringJobManager recurringJobManager)
+        public BackgroundJobService(IBackgroundJobClient backgroundJobClient, IRecurringJobManager recurringJobManager)
         {
+            _backgroundJobClient = backgroundJobClient;
             _recurringJobManager = recurringJobManager;
+        }
+
+        public void CreateJob(Expression<Action> method)
+        {
+            _backgroundJobClient.Enqueue(method);
         }
 
         public void CreateRepeatedJob(string jobId, Expression<Action> method, string cronExpression)

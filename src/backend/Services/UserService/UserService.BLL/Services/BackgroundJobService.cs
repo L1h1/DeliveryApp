@@ -17,6 +17,5 @@ namespace UserService.BLL.Services
         {
             _backgroundJobClient.Enqueue(method);
         }
-
     }
 }

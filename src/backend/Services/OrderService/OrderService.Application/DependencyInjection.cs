@@ -21,6 +21,8 @@ namespace OrderService.Application
 
             services.AddValidatorsFromAssembly(assembly);
             services.AddFluentValidationAutoValidation();
+
+            services.AddScoped<IBillService, PdfBillService>();
         }
 
         public static void AddGrpc(this IServiceCollection services, IConfiguration configuration)
