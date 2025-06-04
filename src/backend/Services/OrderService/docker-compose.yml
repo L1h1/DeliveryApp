@@ -25,7 +25,22 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
 
+  orderservice.hangfire:
+    image: postgres:latest
+    container_name: orderservice.hangfire
+    networks:
+      - delivery-net
+    ports:
+      - 5403:5432
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - ordershangfire:/var/lib/postgresql/data
+
 volumes:
+  ordershangfire:
   mongoorders:
 
 networks:
