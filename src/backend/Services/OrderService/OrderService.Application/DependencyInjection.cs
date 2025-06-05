@@ -4,6 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using OrderService.Application.Interfaces.Services;
 using OrderService.Application.Protos;
 using OrderService.Application.Services;
+using PdfSharp.Fonts;
+using PdfSharp.Snippets.Font;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 
 namespace OrderService.Application
@@ -22,7 +24,12 @@ namespace OrderService.Application
             services.AddValidatorsFromAssembly(assembly);
             services.AddFluentValidationAutoValidation();
 
-            services.AddScoped<IBillService, PdfBillService>();
+            services.AddScoped<IPDFService, BillPDFService>();
+        }
+
+        public static void ConfigurePDF(this IServiceCollection services)
+        {
+            GlobalFontSettings.FontResolver = new FailsafeFontResolver();
         }
 
         public static void AddGrpc(this IServiceCollection services, IConfiguration configuration)

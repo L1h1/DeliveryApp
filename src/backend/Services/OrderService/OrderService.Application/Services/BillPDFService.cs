@@ -3,26 +3,19 @@ using MigraDoc.DocumentObjectModel;
 using MigraDoc.Rendering;
 using OrderService.Application.Interfaces.Services;
 using OrderService.Domain.Entities;
-using PdfSharp.Fonts;
-using PdfSharp.Snippets.Font;
 
 namespace OrderService.Application.Services
 {
-    public class PdfBillService : IBillService
+    public class BillPDFService : IPDFService
     {
         private readonly IConfiguration _configuration;
 
-        static PdfBillService()
-        {
-            GlobalFontSettings.FontResolver = new FailsafeFontResolver();
-        }
-
-        public PdfBillService(IConfiguration configuration)
+        public BillPDFService(IConfiguration configuration)
         {
             _configuration = configuration;
         }
 
-        public async Task<string> CreateBill(Order order, CancellationToken cancellationToken = default)
+        public async Task<string> CreateDocumentAsync(Order order, CancellationToken cancellationToken = default)
         {
             var document = new Document();
             var pdfRenderer = new PdfDocumentRenderer();
