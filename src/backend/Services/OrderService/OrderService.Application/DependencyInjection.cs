@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OrderService.Application.Interfaces.Services;
+using OrderService.Application.Options;
 using OrderService.Application.Protos;
 using OrderService.Application.Services;
 using PdfSharp.Fonts;
@@ -12,7 +13,7 @@ namespace OrderService.Application
 {
     public static class DependencyInjection
     {
-        public static void AddApplication(this IServiceCollection services)
+        public static IServiceCollection AddApplication(this IServiceCollection services)
         {
             var assembly = typeof(DependencyInjection).Assembly;
 
@@ -24,15 +25,27 @@ namespace OrderService.Application
             services.AddValidatorsFromAssembly(assembly);
             services.AddFluentValidationAutoValidation();
 
-            services.AddScoped<IPDFService, BillPDFService>();
+            return services;
         }
 
-        public static void ConfigurePDF(this IServiceCollection services)
+        public static IServiceCollection ConfigurePDF(this IServiceCollection services)
         {
             GlobalFontSettings.FontResolver = new FailsafeFontResolver();
+
+            services.AddScoped<IPDFService, BillPDFService>();
+
+            return services;
         }
 
-        public static void AddGrpc(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddOptions(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.Configure<StorageOptions>(
+                configuration.GetSection(nameof(StorageOptions)));
+
+            return services;
+        }
+
+        public static IServiceCollection AddGrpc(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddGrpcClient<UserService.UserServiceClient>(cfg =>
             {
@@ -45,6 +58,8 @@ namespace OrderService.Application
                 cfg.Address = new Uri(configuration["GrpcProductServiceUrl"]);
             });
             services.AddScoped<IProductService, GrpcProductService>();
+
+            return services;
         }
     }
 }

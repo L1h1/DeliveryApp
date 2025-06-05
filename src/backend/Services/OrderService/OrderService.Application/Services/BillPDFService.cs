@@ -1,18 +1,19 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Options;
 using MigraDoc.DocumentObjectModel;
 using MigraDoc.Rendering;
 using OrderService.Application.Interfaces.Services;
+using OrderService.Application.Options;
 using OrderService.Domain.Entities;
 
 namespace OrderService.Application.Services
 {
     public class BillPDFService : IPDFService
     {
-        private readonly IConfiguration _configuration;
+        private readonly IOptions<StorageOptions> _storageOptions;
 
-        public BillPDFService(IConfiguration configuration)
+        public BillPDFService(IOptions<StorageOptions> storageOptions)
         {
-            _configuration = configuration;
+            _storageOptions = storageOptions;
         }
 
         public async Task<string> CreateDocumentAsync(Order order, CancellationToken cancellationToken = default)
@@ -25,7 +26,7 @@ namespace OrderService.Application.Services
             pdfRenderer.Document = document;
             pdfRenderer.RenderDocument();
 
-            var path = Path.Combine(_configuration["BillStorage"], $"{order.Id}.pdf");
+            var path = Path.Combine(_storageOptions.Value.BillFolder, $"{order.Id}.pdf");
             await pdfRenderer.PdfDocument.SaveAsync(path);
 
             return path;

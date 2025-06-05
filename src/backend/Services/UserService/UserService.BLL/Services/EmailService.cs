@@ -1,34 +1,35 @@
 ﻿using System.Text;
 using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using MimeKit;
 using MimeKit.Text;
 using UserService.BLL.Constants;
 using UserService.BLL.Interfaces;
+using UserService.DAL.Options;
 
 namespace UserService.BLL.Services
 {
     public class EmailService : IEmailService
     {
-        private readonly IConfiguration _configuration;
+        private readonly IOptions<EmailOptions> _emailOptions;
 
-        public EmailService(IConfiguration configuration)
+        public EmailService(IOptions<EmailOptions> emailOptions)
         {
-            _configuration = configuration;
+            _emailOptions = emailOptions;
         }
 
         public async Task SendChangeEmailTokenAsync(string userId, string email, string token, CancellationToken cancellationToken = default)
         {
             var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-            var confirmationEmail = $"{_configuration["BaseUrl"]}/account/confirm-email-change/{userId}/{email}/{encodedToken}";
+            var confirmationEmail = $"{_emailOptions.Value.BaseUrl}/account/confirm-email-change/{userId}/{email}/{encodedToken}";
             await SendEmailAsync(email, EmailConstants.EmailChange, confirmationEmail);
         }
 
         public async Task SendConfirmationEmailAsync(string email, string token, CancellationToken cancellationToken = default)
         {
             var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-            var confirmationEmail = $"{_configuration["BaseUrl"]}/account/email-confirmation/{email}/{encodedToken}";
+            var confirmationEmail = $"{_emailOptions.Value.BaseUrl}/account/email-confirmation/{email}/{encodedToken}";
             await SendEmailAsync(email, EmailConstants.EmailConfirmation, confirmationEmail);
         }
 
@@ -36,10 +37,10 @@ namespace UserService.BLL.Services
         {
             using var client = new SmtpClient();
             client.AuthenticationMechanisms.Remove("NTLM");
-            var host = _configuration.GetValue<string>("EmailSettings:Host");
-            var port = _configuration.GetValue<int>("EmailSettings:Port");
-            var username = _configuration.GetValue<string>("EmailSettings:Credentials:Username");
-            var password = _configuration.GetValue<string>("EmailSettings:Credentials:Password");
+            var host = _emailOptions.Value.Host;
+            var port = _emailOptions.Value.Port;
+            var username = _emailOptions.Value.Username;
+            var password = _emailOptions.Value.Password;
 
             using var body = new TextPart(TextFormat.Html);
             body.Text = htmlMessage;
