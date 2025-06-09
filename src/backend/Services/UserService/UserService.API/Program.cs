@@ -9,7 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 
-builder.Services.AddDAL(builder.Configuration);
+builder.Services.AddData(builder.Configuration);
+builder.Services.AddJWTAuth(builder.Configuration);
 builder.Services.AddBLL();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

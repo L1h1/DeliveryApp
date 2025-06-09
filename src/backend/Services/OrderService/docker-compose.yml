@@ -1,0 +1,33 @@
+services:
+  orderservice.api:
+    image: ${DOCKER_REGISTRY-}orderserviceapi
+    build:
+      context: .
+      dockerfile: OrderService.API/Dockerfile
+    networks:
+      - delivery-net
+    ports:
+      - 5004:5004
+      - 5005:5005
+    env_file:
+      - .env
+
+  orderservice.mongo:
+    image: mongo:latest
+    container_name: orderservice.mongo
+    networks:
+      - delivery-net
+    ports:
+      - 27002:27017
+    volumes:
+      - mongoorders:/var/lb/mongo/data
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+
+volumes:
+  mongoorders:
+
+networks:
+  delivery-net:
+    external: true  
