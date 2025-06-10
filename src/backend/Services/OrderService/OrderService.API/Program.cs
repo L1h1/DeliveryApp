@@ -16,10 +16,6 @@ builder.Services
     .AddBackgroundJobs(builder.Configuration)
     .AddRabbitMq();
 
-builder.Services.AddInfrastructure(builder.Configuration);
-builder.Services.AddApplication();
-builder.Services.AddGrpc(builder.Configuration);
-
 builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
