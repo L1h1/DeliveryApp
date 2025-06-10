@@ -15,7 +15,8 @@ builder.Services
     .AddDataAccess(builder.Configuration)
     .AddOptions(builder.Configuration)
     .AddIdentity()
-    .AddJWTAuth();
+    .AddJWTAuth()
+    .AddRabbitMq();
 
 builder.Services.AddControllers();
 

@@ -15,9 +15,14 @@ namespace OrderService.Infrastructure.Services
             _recurringJobManager = recurringJobManager;
         }
 
-        public void CreateJob(Expression<Action> method)
+        public void CreateContinuationJob<T>(string jobId, Expression<Action<T>> method)
         {
-            _backgroundJobClient.Enqueue(method);
+            _backgroundJobClient.ContinueJobWith(jobId, method);
+        }
+
+        public string CreateJob(Expression<Action> method)
+        {
+            return _backgroundJobClient.Enqueue(method);
         }
 
         public void CreateRepeatedJob(string jobId, Expression<Action> method, string cronExpression)

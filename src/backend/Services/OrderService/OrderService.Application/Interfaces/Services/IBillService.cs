@@ -2,7 +2,7 @@
 
 namespace OrderService.Application.Interfaces.Services
 {
-    public interface IPDFService
+    public interface IBillService
     {
         Task<string> CreateDocumentAsync(Order order, CancellationToken cancellationToken = default);
     }

@@ -45,6 +45,9 @@ namespace UserService.DAL
             services.Configure<EmailOptions>(
                 configuration.GetSection(nameof(EmailOptions)));
 
+            services.Configure<RabbitMqOptions>(
+                configuration.GetSection(nameof(RabbitMqOptions)));
+
             return services;
         }
 

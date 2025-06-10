@@ -11,10 +11,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services
     .AddApplication()
     .AddOptions(builder.Configuration)
-    .ConfigurePDF()
     .AddGrpc(builder.Configuration)
     .AddDataAccess(builder.Configuration)
-    .AddBackgroundJobs(builder.Configuration);
+    .AddBackgroundJobs(builder.Configuration)
+    .AddRabbitMq();
 
 builder.Services.AddControllers();
 

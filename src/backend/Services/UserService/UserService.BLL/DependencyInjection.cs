@@ -6,6 +6,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using UserService.BLL.Interfaces;
+using UserService.BLL.Messaging;
+using UserService.BLL.Messaging.Consumers;
 using UserService.BLL.Services;
 
 namespace UserService.BLL
@@ -40,6 +42,14 @@ namespace UserService.BLL
             services.AddHangfireServer();
 
             services.AddScoped<IBackgroundJobService, BackgroundJobService>();
+
+            return services;
+        }
+
+        public static IServiceCollection AddRabbitMq(this IServiceCollection services)
+        {
+            services.AddSingleton<RabbitMqConnection>();
+            services.AddHostedService<RabbitMqBillConsumer>();
 
             return services;
         }
