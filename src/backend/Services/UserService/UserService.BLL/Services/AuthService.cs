@@ -21,8 +21,7 @@ namespace UserService.BLL.Services
             IUserRepository userRepository,
             SignInManager<User> signInManager,
             ITokenService tokenService,
-            IMapper mapper,
-            IAccountService accountService)
+            IMapper mapper)
         {
             _userRepository = userRepository;
             _signInManager = signInManager;

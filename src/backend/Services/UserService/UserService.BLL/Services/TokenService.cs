@@ -13,12 +13,12 @@ namespace UserService.BLL.Services
 {
     public class TokenService : ITokenService
     {
-        private readonly IOptions<JwtOptions> _jwtOptions;
+        private readonly JwtOptions _jwtOptions;
         private readonly IUserRepository _userRepository;
 
         public TokenService(IOptions<JwtOptions> jwtOptions, IUserRepository userRepository)
         {
-            _jwtOptions = jwtOptions;
+            _jwtOptions = jwtOptions.Value;
             _userRepository = userRepository;
         }
 
@@ -26,10 +26,10 @@ namespace UserService.BLL.Services
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var issuer = _jwtOptions.Value.Issuer;
-            var audience = _jwtOptions.Value.Audience;
-            var key = _jwtOptions.Value.Key;
-            var accessTokenExpiration = _jwtOptions.Value.AccessTokenExpirationMins;
+            var issuer = _jwtOptions.Issuer;
+            var audience = _jwtOptions.Audience;
+            var key = _jwtOptions.Key;
+            var accessTokenExpiration = _jwtOptions.AccessTokenExpirationMins;
             var tokenExpirityTimeStamp = DateTime.Now.AddMinutes(accessTokenExpiration);
             var signingCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)), SecurityAlgorithms.HmacSha512Signature);
             var claims = new List<Claim>
@@ -64,7 +64,7 @@ namespace UserService.BLL.Services
 
         public (string refreshToken, DateTime expirityDate) GenerateRefreshToken()
         {
-            var tokenLifetime = _jwtOptions.Value.RefreshTokenExpirationDays;
+            var tokenLifetime = _jwtOptions.RefreshTokenExpirationDays;
             var refreshToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
             var expirityDate = DateTime.UtcNow.AddDays(tokenLifetime);
 
@@ -77,12 +77,12 @@ namespace UserService.BLL.Services
             var validationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
-                ValidIssuer = _jwtOptions.Value.Issuer,
+                ValidIssuer = _jwtOptions.Issuer,
                 ValidateAudience = true,
-                ValidAudience = _jwtOptions.Value.Audience,
+                ValidAudience = _jwtOptions.Audience,
                 ValidateLifetime = false,
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Value.Key)),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Key)),
             };
 
             var principal = tokenHandler.ValidateToken(token, validationParameters, out _);

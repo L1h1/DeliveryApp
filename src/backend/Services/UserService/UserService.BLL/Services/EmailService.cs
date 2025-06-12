@@ -12,24 +12,24 @@ namespace UserService.BLL.Services
 {
     public class EmailService : IEmailService
     {
-        private readonly IOptions<EmailOptions> _emailOptions;
+        private readonly EmailOptions _emailOptions;
 
         public EmailService(IOptions<EmailOptions> emailOptions)
         {
-            _emailOptions = emailOptions;
+            _emailOptions = emailOptions.Value;
         }
 
         public async Task SendChangeEmailTokenAsync(string userId, string email, string token, CancellationToken cancellationToken = default)
         {
             var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-            var confirmationEmail = $"{_emailOptions.Value.BaseUrl}/account/confirm-email-change/{userId}/{email}/{encodedToken}";
+            var confirmationEmail = $"{_emailOptions.BaseUrl}/account/confirm-email-change/{userId}/{email}/{encodedToken}";
             await SendEmailAsync(email, EmailConstants.EmailChange, confirmationEmail);
         }
 
         public async Task SendConfirmationEmailAsync(string email, string token, CancellationToken cancellationToken = default)
         {
             var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-            var confirmationEmail = $"{_emailOptions.Value.BaseUrl}/account/email-confirmation/{email}/{encodedToken}";
+            var confirmationEmail = $"{_emailOptions.BaseUrl}/account/email-confirmation/{email}/{encodedToken}";
             await SendEmailAsync(email, EmailConstants.EmailConfirmation, confirmationEmail);
         }
 
@@ -37,10 +37,10 @@ namespace UserService.BLL.Services
         {
             using var client = new SmtpClient();
             client.AuthenticationMechanisms.Remove("NTLM");
-            var host = _emailOptions.Value.Host;
-            var port = _emailOptions.Value.Port;
-            var username = _emailOptions.Value.Username;
-            var password = _emailOptions.Value.Password;
+            var host = _emailOptions.Host;
+            var port = _emailOptions.Port;
+            var username = _emailOptions.Username;
+            var password = _emailOptions.Password;
 
             using var body = new TextPart(TextFormat.Html);
             body.Text = htmlMessage;
