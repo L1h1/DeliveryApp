@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using ProductService.Application.Interfaces.Services;
+using ProductService.Application.Options;
 
 namespace ProductService.Application.Services
 {
@@ -8,9 +10,9 @@ namespace ProductService.Application.Services
     {
         private readonly string rootPath;
 
-        public ImageStorageService(IConfiguration configuration)
+        public ImageStorageService(IOptions<StorageOptions> storageOptions)
         {
-            rootPath = configuration.GetValue<string>("ImageFolder")!;
+            rootPath = storageOptions.Value.ImageFolder;
         }
 
         public async Task<string> SaveThumbnailAsync(Guid productId, IFormFile file, CancellationToken cancellationToken = default)

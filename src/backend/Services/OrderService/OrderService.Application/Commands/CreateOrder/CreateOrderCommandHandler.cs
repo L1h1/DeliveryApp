@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using MediatR;
+using OrderService.Application.DTOs.Messaging;
 using OrderService.Application.DTOs.Response;
 using OrderService.Application.Exceptions;
+using OrderService.Application.Interfaces.Messaging.Producers;
 using OrderService.Application.Interfaces.Repositories;
 using OrderService.Application.Interfaces.Services;
 using OrderService.Domain.Entities;
@@ -14,20 +16,33 @@ namespace OrderService.Application.Commands.CreateOrder
         private readonly IOrderRepository _orderRepository;
         private readonly IProductService _productService;
         private readonly IUserService _userService;
+        private readonly IBackgroundJobService _backgroundJobService;
+        private readonly IBillService _billService;
+        private readonly IMessageProducer _messageProducer;
 
-        public CreateOrderCommandHandler(IMapper mapper, IOrderRepository orderRepository, IProductService productService, IUserService userService)
+        public CreateOrderCommandHandler(
+            IMapper mapper,
+            IOrderRepository orderRepository,
+            IProductService productService,
+            IUserService userService,
+            IBackgroundJobService backgroundJobService,
+            IBillService billService,
+            IMessageProducer messageProducer)
         {
             _mapper = mapper;
             _orderRepository = orderRepository;
             _productService = productService;
             _userService = userService;
+            _backgroundJobService = backgroundJobService;
+            _billService = billService;
+            _messageProducer = messageProducer;
         }
 
         public async Task<OrderResponseDTO> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
         {
-            var existingUser = await _userService.GetByIdAsync(request.RequestDTO.ClientId.ToString(), cancellationToken);
+            var userEmail = await _userService.GetByIdAsync(request.RequestDTO.ClientId.ToString(), cancellationToken);
 
-            if (existingUser is null)
+            if (userEmail is null)
             {
                 throw new NotFoundException("Client with given id not found.");
             }
@@ -59,7 +74,20 @@ namespace OrderService.Application.Commands.CreateOrder
 
             await _orderRepository.CreateAsync(order, cancellationToken);
 
+            _backgroundJobService.CreateJob(() => GenerateAndSendBillAsync(order, userEmail));
+
             return _mapper.Map<OrderResponseDTO>(order);
+        }
+
+        public async Task GenerateAndSendBillAsync(Order order, string email)
+        {
+            var contents = await _billService.CreateDocumentAsync(order);
+
+            await _messageProducer.SendMessageAsync("bills", new BillDTO
+            {
+                Email = email,
+                Contents = contents
+            });
         }
     }
 }

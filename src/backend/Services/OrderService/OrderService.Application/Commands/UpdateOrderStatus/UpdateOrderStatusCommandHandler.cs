@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using OrderService.Application.Exceptions;
 using OrderService.Application.Interfaces.Repositories;
+using OrderService.Application.Interfaces.Services;
 
 namespace OrderService.Application.Commands.UpdateOrderStatus
 {

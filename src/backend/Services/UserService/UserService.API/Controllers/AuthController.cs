@@ -9,16 +9,20 @@ namespace UserService.API.Controllers
     public class AuthController : Controller
     {
         private readonly IAuthService _authService;
+        private readonly IAccountService _accountService;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, IAccountService accountService)
         {
             _authService = authService;
+            _accountService = accountService;
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> Regiser([FromBody] RegisterRequestDTO userDTO, CancellationToken cancellationToken)
         {
             var result = await _authService.RegisterUserAsync(userDTO, cancellationToken);
+
+            await _accountService.GenerateEmailConfirmationTokenAsync(userDTO.Email, cancellationToken);
 
             return Ok(result);
         }

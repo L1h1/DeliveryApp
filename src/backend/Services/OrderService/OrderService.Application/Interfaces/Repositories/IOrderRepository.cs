@@ -10,5 +10,6 @@ namespace OrderService.Application.Interfaces.Repositories
         Task<Order> CreateAsync(Order order, CancellationToken cancellationToken = default);
         Task UpdateAsync(Order order, CancellationToken cancellationToken = default);
         Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
+        Task DeleteOldOrdersAsync(CancellationToken cancellationToken = default);
     }
 }

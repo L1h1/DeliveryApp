@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OrderService.Application.Interfaces.Services;
+using OrderService.Application.Options;
 using OrderService.Application.Protos;
 using OrderService.Application.Services;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
@@ -10,7 +11,7 @@ namespace OrderService.Application
 {
     public static class DependencyInjection
     {
-        public static void AddApplication(this IServiceCollection services)
+        public static IServiceCollection AddApplication(this IServiceCollection services)
         {
             var assembly = typeof(DependencyInjection).Assembly;
 
@@ -21,21 +22,35 @@ namespace OrderService.Application
 
             services.AddValidatorsFromAssembly(assembly);
             services.AddFluentValidationAutoValidation();
+
+            services.AddScoped<IBillService, BillService>();
+
+            return services;
         }
 
-        public static void AddGrpc(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddOptions(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.Configure<RabbitMqOptions>(
+                configuration.GetSection(nameof(RabbitMqOptions)));
+
+            return services;
+        }
+
+        public static IServiceCollection AddGrpc(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddGrpcClient<UserService.UserServiceClient>(cfg =>
             {
-                cfg.Address = new Uri(configuration["GrpcUserServiceUrl"]);
+                cfg.Address = new Uri(configuration["GrpcOptions:UserServiceUrl"]);
             });
             services.AddScoped<IUserService, GrpcUserService>();
 
             services.AddGrpcClient<ProductService.ProductServiceClient>(cfg =>
             {
-                cfg.Address = new Uri(configuration["GrpcProductServiceUrl"]);
+                cfg.Address = new Uri(configuration["GrpcOptions:ProductServiceUrl"]);
             });
             services.AddScoped<IProductService, GrpcProductService>();
+
+            return services;
         }
     }
 }

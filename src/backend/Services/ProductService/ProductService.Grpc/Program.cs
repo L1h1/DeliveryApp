@@ -6,7 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddGrpc();
 
-builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddDataAccess(builder.Configuration);
 
 var app = builder.Build();
 

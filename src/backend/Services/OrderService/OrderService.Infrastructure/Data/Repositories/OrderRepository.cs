@@ -26,6 +26,13 @@ namespace OrderService.Infrastructure.Data.Repositories
             await _context.Orders.DeleteOneAsync(o => o.Id == id, cancellationToken: cancellationToken);
         }
 
+        public async Task DeleteOldOrdersAsync(CancellationToken cancellationToken = default)
+        {
+            await _context.Orders.DeleteManyAsync(
+                o => o.OrderStatus == Domain.Enums.OrderStatus.Delivered &&
+                o.CreatedAt <= DateTime.UtcNow.AddMonths(-1), cancellationToken: cancellationToken);
+        }
+
         public async Task<Order> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             var response = await _context.Orders.Find(o => o.Id == id).FirstOrDefaultAsync(cancellationToken);
