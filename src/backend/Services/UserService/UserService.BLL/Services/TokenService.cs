@@ -25,10 +25,10 @@ namespace UserService.BLL.Services
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var issuer = _configuration["JwtSettings:Issuer"];
-            var audience = _configuration["JwtSettings:Audience"];
-            var key = _configuration["JwtSettings:Key"];
-            var accessTokenExpiration = _configuration.GetValue<int>("JwtSettings:AccessTokenExpirationMins");
+            var issuer = _configuration["JwtOptions:Issuer"];
+            var audience = _configuration["JwtOptions:Audience"];
+            var key = _configuration["JwtOptions:Key"];
+            var accessTokenExpiration = _configuration.GetValue<int>("JwtOptions:AccessTokenExpirationMins");
             var tokenExpirityTimeStamp = DateTime.Now.AddMinutes(accessTokenExpiration);
             var signingCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)), SecurityAlgorithms.HmacSha512Signature);
             var claims = new List<Claim>
@@ -76,12 +76,12 @@ namespace UserService.BLL.Services
             var validationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
-                ValidIssuer = _configuration["JwtSettings:Issuer"],
+                ValidIssuer = _configuration["JwtOptions:Issuer"],
                 ValidateAudience = true,
-                ValidAudience = _configuration["JwtSettings:Audience"],
+                ValidAudience = _configuration["JwtOptions:Audience"],
                 ValidateLifetime = false,
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"])),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtOptions:Key"])),
             };
 
             var principal = tokenHandler.ValidateToken(token, validationParameters, out _);

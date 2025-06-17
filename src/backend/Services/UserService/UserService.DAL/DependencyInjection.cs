@@ -30,34 +30,5 @@ namespace UserService.DAL
 
             return services;
         }
-
-        public static IServiceCollection AddJWTAuth(this IServiceCollection services, IConfiguration configuration)
-        {
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidIssuer = configuration["JwtSettings:Issuer"],
-                    ValidateAudience = false,
-                    ValidAudience = configuration["JwtSettings:Audience"],
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(
-                        System.Text.Encoding.UTF8.GetBytes(configuration["JwtSettings:Key"])),
-                };
-            });
-
-            services.AddAuthorizationBuilder()
-                .AddPolicy("Admin", p => p.RequireRole("Admin"))
-                .AddPolicy("Client", p => p.RequireRole("Client"))
-                .AddPolicy("Courier", p => p.RequireRole("Courier"));
-
-            return services;
-        }
     }
 }

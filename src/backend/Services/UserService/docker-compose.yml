@@ -1,13 +1,14 @@
 services:
   userservice.api:
     image: ${DOCKER_REGISTRY-}userserviceapi
+    container_name: userservice.api
     build:
       context: .
       dockerfile: UserService.API/Dockerfile
     networks:
       - delivery-net
     ports:
-      - 5000:5001
+      - 5000:5000
       - 5001:5001
     depends_on:
       - userservice.database
@@ -16,6 +17,7 @@ services:
 
   userservice.grpc:
     image: ${DOCKER_REGISTRY-}userservicegrpc
+    container_name: userservice.grpc
     build:
       context: .
       dockerfile: UserService.Grpc/Dockerfile
@@ -42,7 +44,6 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
       - pgdata:/var/lib/postgresql/data
-
 
 volumes:
   pgdata:

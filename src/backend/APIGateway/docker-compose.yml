@@ -1,0 +1,17 @@
+services:
+  ocelotgateway:
+    image: ${DOCKER_REGISTRY-}ocelotgateway
+    build:
+      context: ..
+      dockerfile: APIGateway/Ocelot/OcelotGateway/Dockerfile
+    networks:
+      - delivery-net
+    ports:
+      - 7000:7000
+      - 7001:7001
+    env_file:
+      - .env
+
+networks:
+  delivery-net:
+    external: true

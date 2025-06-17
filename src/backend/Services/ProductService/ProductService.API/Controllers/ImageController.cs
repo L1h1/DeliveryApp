@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProductService.Application.Commands.Images.AddProductAlbum;
 using ProductService.Application.Commands.Images.AddProductThumbnail;
@@ -7,6 +8,7 @@ namespace ProductService.API.Controllers
 {
     [ApiController]
     [Route("api/images")]
+    [Authorize(Roles = "Admin")]
     public class ImageController : ControllerBase
     {
         private readonly IMediator _mediator;

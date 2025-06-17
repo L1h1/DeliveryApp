@@ -4,8 +4,6 @@
       "commandName": "DockerCompose",
       "commandVersion": "1.0",
       "serviceActions": {
-        "userservice.api": "StartDebugging",
-        "ocelotapigateway": "StartDebugging",
         "ocelotgateway": "StartDebugging"
       }
     }

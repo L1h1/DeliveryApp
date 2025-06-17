@@ -63,7 +63,7 @@ namespace UserService.BLL.Services
 
             var token = await _userRepository.GenerateEmailConfirmationTokenAsync(user, cancellationToken);
             var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-            var confirmationEmail = $"{_configuration["BaseUrl"]}/account/email-confirmation/{email}/{encodedToken}";
+            var confirmationEmail = $"{_configuration["BaseUrl"]}/account/email/confirmation/{email}/{encodedToken}";
 
             await _emailSender.SendEmailAsync(email, EmailConstants.EmailConfirmation, confirmationEmail);
         }
@@ -142,7 +142,7 @@ namespace UserService.BLL.Services
             var user = await _userRepository.GetUserByIdAsync(userId, cancellationToken);
             var token = await _userRepository.GenerateEmailChangeTokenAsync(user, email, cancellationToken);
             var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-            var confirmationEmail = $"{_configuration["BaseUrl"]}/account/confirm-email-change/{user.Id}/{email}/{encodedToken}";
+            var confirmationEmail = $"{_configuration["BaseUrl"]}/account/email/change/confirmation/{user.Id}/{email}/{encodedToken}";
 
             await _emailSender.SendEmailAsync(email, EmailConstants.EmailChange, confirmationEmail);
         }

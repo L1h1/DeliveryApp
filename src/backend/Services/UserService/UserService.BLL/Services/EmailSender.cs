@@ -18,10 +18,10 @@ namespace UserService.BLL.Services
         {
             using var client = new SmtpClient();
             client.AuthenticationMechanisms.Remove("NTLM");
-            var host = _configuration.GetValue<string>("EmailSettings:Host");
-            var port = _configuration.GetValue<int>("EmailSettings:Port");
-            var username = _configuration.GetValue<string>("EmailSettings:Credentials:Username");
-            var password = _configuration.GetValue<string>("EmailSettings:Credentials:Password");
+            var host = _configuration.GetValue<string>("EmailOptions:Host");
+            var port = _configuration.GetValue<int>("EmailOptions:Port");
+            var username = _configuration.GetValue<string>("EmailOptions:Credentials:Username");
+            var password = _configuration.GetValue<string>("EmailOptions:Credentials:Password");
 
             using var body = new TextPart(TextFormat.Html);
             body.Text = htmlMessage;

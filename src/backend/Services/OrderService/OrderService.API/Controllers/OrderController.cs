@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OrderService.Application.Commands.AssignCourier;
 using OrderService.Application.Commands.CreateOrder;
@@ -25,6 +26,7 @@ namespace OrderService.API.Controllers
         }
 
         [HttpGet("{orderId}")]
+        [Authorize]
         public async Task<IActionResult> GetOrderById([FromRoute] Guid orderId, CancellationToken cancellationToken)
         {
             var query = new GetOrderByIdQuery(orderId);
@@ -34,6 +36,7 @@ namespace OrderService.API.Controllers
         }
 
         [HttpGet("client/{clientId}")]
+        [Authorize(Roles = "Admin, Courier")]
         public async Task<IActionResult> GetOrdersByClientId([FromRoute] Guid clientId, CancellationToken cancellationToken)
         {
             var query = new GetOrdersByClientIdQuery(clientId);
@@ -43,6 +46,7 @@ namespace OrderService.API.Controllers
         }
 
         [HttpGet("courier/{courierId}")]
+        [Authorize(Roles = "Admin, Courier")]
         public async Task<IActionResult> GetActiveOrdersByCourierId([FromRoute] Guid courierId, CancellationToken cancellationToken)
         {
             var query = new GetOrdersByCourierIdQuery(courierId);
@@ -52,6 +56,7 @@ namespace OrderService.API.Controllers
         }
 
         [HttpGet("status/{status}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetOrdersByStatus([FromRoute] OrderStatus status, CancellationToken cancellationToken)
         {
             var query = new GetOrdersByStatusQuery(status);
@@ -60,7 +65,8 @@ namespace OrderService.API.Controllers
             return Ok(response);
         }
 
-        [HttpPost("create")]
+        [HttpPost]
+        [Authorize]
         public async Task<IActionResult> CreateOrder([FromBody] OrderRequestDTO requestDTO, CancellationToken cancellationToken)
         {
             var command = new CreateOrderCommand(requestDTO);
@@ -69,7 +75,8 @@ namespace OrderService.API.Controllers
             return Ok(response);
         }
 
-        [HttpPost("{orderId}/assign-courier/{courierId}")]
+        [HttpPost("courier/{courierId}/assign/{orderId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AssignCourierAsync([FromRoute] Guid orderId, [FromRoute] Guid courierId, CancellationToken cancellationToken)
         {
             var command = new AssignCourierCommand(orderId, courierId);
@@ -78,7 +85,8 @@ namespace OrderService.API.Controllers
             return Ok(new { Message = "Courier assigned." });
         }
 
-        [HttpPost("{orderId}/update-status/{status}")]
+        [HttpPost("status/update/{orderId}/{status}")]
+        [Authorize(Roles = "Admin, Courier")]
         public async Task<IActionResult> UpdateOrderStatus([FromRoute] Guid orderId, [FromRoute] OrderStatus status, CancellationToken cancellationToken)
         {
             var command = new UpdateOrderStatusCommand(orderId, status);
@@ -88,6 +96,7 @@ namespace OrderService.API.Controllers
         }
 
         [HttpDelete("{orderId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteOrderCommand([FromRoute] Guid orderId, CancellationToken cancellationToken)
         {
             var command = new DeleteOrderCommand(orderId);

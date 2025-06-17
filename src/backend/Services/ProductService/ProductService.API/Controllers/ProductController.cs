@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProductService.Application.Commands.Product.CreateProduct;
 using ProductService.Application.Commands.Product.DeleteProduct;
@@ -52,6 +53,7 @@ namespace ProductService.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateProduct([FromBody] ProductRequestDTO dto, CancellationToken cancellationToken)
         {
             var command = new CreateProductCommand(dto);
@@ -61,6 +63,7 @@ namespace ProductService.API.Controllers
         }
 
         [HttpPost("details")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateProductDetails([FromBody] ProductDetailsRequestDTO dto, CancellationToken cancellationToken)
         {
             var command = new CreateProductDetailsCommand(dto);
@@ -70,6 +73,7 @@ namespace ProductService.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateProduct([FromRoute] Guid id, [FromBody] ProductRequestDTO dto, CancellationToken cancellationToken)
         {
             var command = new UpdateProductCommand(id, dto);
@@ -79,6 +83,7 @@ namespace ProductService.API.Controllers
         }
 
         [HttpPut("details")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateProductDetails([FromBody] ProductDetailsRequestDTO dto, CancellationToken cancellationToken)
         {
             var command = new UpdateProductDetailsCommand(dto);
@@ -88,6 +93,7 @@ namespace ProductService.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteProduct([FromRoute] Guid id, CancellationToken cancellationToken)
         {
             var command = new DeleteProductCommand(id);
@@ -97,6 +103,7 @@ namespace ProductService.API.Controllers
         }
 
         [HttpDelete("details/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteProductDetails([FromRoute] Guid id, CancellationToken cancellationToken)
         {
             var command = new DeleteProductDetailsCommand(id);
