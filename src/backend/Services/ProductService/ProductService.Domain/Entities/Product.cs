@@ -2,9 +2,8 @@
 
 namespace ProductService.Domain.Entities
 {
-    public class Product
+    public class Product : BaseEntity
     {
-        required public Guid Id { get; set; }
         required public string Title { get; set; }
         required public decimal Price { get; set; }
         required public UnitOfMeasure UnitOfMeasure { get; set; }

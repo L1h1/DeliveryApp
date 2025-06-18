@@ -1,21 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ProductService.Application.Interfaces.Repositories;
+using ProductService.Application.Interfaces.Services;
 using ProductService.Domain.Entities;
 
 namespace ProductService.Infrastructure.Data.SQL.Repositories
 {
     public class ManufacturerRepository : EFBaseRepository<Manufacturer>, IManufacturerRepository
     {
-        public ManufacturerRepository(EFDbContext context)
-            : base(context)
+        public ManufacturerRepository(EFDbContext context, ICacheService cache)
+            : base(context, cache)
         {
-        }
-
-        public async Task<Manufacturer> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
-        {
-            var result = await _dbSet.FindAsync([id], cancellationToken);
-
-            return result;
         }
 
         public async Task<Manufacturer> GetByNameAsync(string normalizedName, CancellationToken cancellationToken = default)

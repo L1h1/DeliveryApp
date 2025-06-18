@@ -1,5 +1,6 @@
 using JwtAuthentication;
 using Microsoft.Extensions.FileProviders;
+using ProductService.API;
 using ProductService.API.Middleware;
 using ProductService.Application;
 using ProductService.Infrastructure;
@@ -13,10 +14,12 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddApplication();
 builder.Services.AddControllers();
+builder.Services.AddRedisCaching(builder.Configuration);
+builder.Services.AddOptions(builder.Configuration);
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwagger();
 
 var app = builder.Build();
 

@@ -6,7 +6,8 @@
       "serviceActions": {
         "userservice.api": "StartDebugging",
         "ocelotapigateway": "StartDebugging",
-        "ocelotgateway": "StartDebugging"
+        "ocelotgateway": "StartDebugging",
+        "webapplication1": "StartDebugging"
       }
     }
   }
