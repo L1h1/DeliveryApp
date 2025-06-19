@@ -13,6 +13,8 @@ services:
       - userservice.database
     env_file:
       - .env
+    volumes:
+      - bills:/app/SharedBills
 
   userservice.grpc:
     image: ${DOCKER_REGISTRY-}userservicegrpc
@@ -43,9 +45,21 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"  
+      - "15672:15672"    
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - delivery-net
 
 volumes:
   pgdata:
+  bills:
 
 networks:
   delivery-net:
