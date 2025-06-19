@@ -1,7 +1,7 @@
 using Hangfire;
-using OrderService.API.Filters;
 using JwtAuthentication;
 using OrderService.API;
+using OrderService.API.Filters;
 using OrderService.API.Middleware;
 using OrderService.Application;
 using OrderService.Infrastructure;
@@ -17,7 +17,8 @@ builder.Services
     .AddDataAccess(builder.Configuration)
     .AddBackgroundJobs(builder.Configuration)
     .AddRabbitMq()
-    .AddJwtAuthentication(builder.Configuration);
+    .AddJwtAuthentication(builder.Configuration)
+    .AddRedisCaching(builder.Configuration);
 
 builder.Services.AddControllers();
 

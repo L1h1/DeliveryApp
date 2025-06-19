@@ -3,10 +3,12 @@ using Hangfire.PostgreSql;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
+using OrderService.Application.Interfaces.Caching;
 using OrderService.Application.Interfaces.Messaging.Producers;
 using OrderService.Application.Interfaces.Repositories;
 using OrderService.Application.Interfaces.Services;
 using OrderService.Infrastructure.Data;
+using OrderService.Infrastructure.Data.Caching;
 using OrderService.Infrastructure.Data.Repositories;
 using OrderService.Infrastructure.Messaging;
 using OrderService.Infrastructure.Messaging.Producers;
@@ -48,6 +50,19 @@ namespace OrderService.Infrastructure
         {
             services.AddSingleton<RabbitMqConnection>();
             services.AddScoped<IMessageProducer, RabbitMqProducer>();
+
+            return services;
+        }
+
+        public static IServiceCollection AddRedisCaching(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddStackExchangeRedisCache(opt =>
+            {
+                opt.Configuration = configuration.GetConnectionString("Redis");
+                opt.InstanceName = "Orders_";
+            });
+
+            services.AddScoped<ICacheService, RedisCacheService>();
 
             return services;
         }

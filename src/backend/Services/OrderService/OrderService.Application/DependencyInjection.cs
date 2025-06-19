@@ -33,6 +33,9 @@ namespace OrderService.Application
             services.Configure<RabbitMqOptions>(
                 configuration.GetSection(nameof(RabbitMqOptions)));
 
+            services.Configure<CacheOptions>(
+                configuration.GetSection(nameof(CacheOptions)));
+
             return services;
         }
 

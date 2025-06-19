@@ -29,7 +29,7 @@ namespace OrderService.Application.Queries.GetOrdersByClientId
                 throw new NotFoundException("User with given id not found.");
             }
 
-            var response = await _orderRepository.ListAsync(o => o.ClientId == request.Id, cancellationToken);
+            var response = await _orderRepository.ListByUserIdAsync(request.Id, cancellationToken);
 
             if (response.Count == 0)
             {
