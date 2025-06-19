@@ -17,7 +17,8 @@ builder.Services
     .AddOptions(builder.Configuration)
     .AddIdentity()
     .AddJwtAuthentication(builder.Configuration)
-    .AddRabbitMq();
+    .AddRabbitMq()
+    .AddRedisCaching(builder.Configuration);
 
 builder.Services.AddControllers();
 

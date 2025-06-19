@@ -97,10 +97,7 @@ namespace ProductService.Infrastructure.Data.SQL.Repositories
             _dbSet.Update(tEntity);
             await _context.SaveChangesAsync(cancellationToken);
 
-            var key = $"{typeof(T).Name}:{tEntity.Id}";
-
-            await _cacheService.RemoveAsync(key, cancellationToken);
-            await _cacheService.SetAsync(key, tEntity, cancellationToken);
+            await _cacheService.SetAsync($"{typeof(T).Name}:{tEntity.Id}", tEntity, cancellationToken);
 
             return tEntity;
         }

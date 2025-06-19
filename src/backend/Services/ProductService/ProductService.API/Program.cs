@@ -15,7 +15,8 @@ builder.Services
     .AddOptions(builder.Configuration)
     .AddDataAccess(builder.Configuration)
     .AddRedisCaching(builder.Configuration)
-    .AddOptions(builder.Configuration);
+    .AddOptions(builder.Configuration)
+    .AddJwtAuthentication(builder.Configuration);
 
 builder.Services.AddControllers();
 

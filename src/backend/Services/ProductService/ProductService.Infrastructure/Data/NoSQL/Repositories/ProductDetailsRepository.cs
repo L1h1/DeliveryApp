@@ -70,12 +70,9 @@ namespace ProductService.Infrastructure.Data.NoSQL.Repositories
 
         public async Task<ProductDetails?> UpdateAsync(ProductDetails tEntity, CancellationToken cancellationToken = default)
         {
-            var key = $"{typeof(ProductDetails).Name}:{tEntity.Id}";
-
             await _dbContext.ProductsDetails.ReplaceOneAsync(p => p.Id == tEntity.Id, tEntity, cancellationToken: cancellationToken);
 
-            await _cacheService.RemoveAsync(key, cancellationToken);
-            await _cacheService.SetAsync(key, tEntity, cancellationToken);
+            await _cacheService.SetAsync($"{typeof(ProductDetails).Name}:{tEntity.Id}", tEntity, cancellationToken);
 
             return tEntity;
         }
