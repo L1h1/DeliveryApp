@@ -1,11 +1,8 @@
 ﻿using System.Text;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using UserService.BLL.Constants;
 using UserService.BLL.DTOs.Response;
 using UserService.BLL.Exceptions;
 using UserService.BLL.Interfaces;
@@ -16,16 +13,16 @@ namespace UserService.BLL.Services
     public class AccountService : IAccountService
     {
         private readonly IUserRepository _userRepository;
-        private readonly IEmailSender _emailSender;
+        private readonly IEmailService _emailSender;
         private readonly IMapper _mapper;
-        private readonly IConfiguration _configuration;
+        private readonly IBackgroundJobService _backgroundJobService;
 
-        public AccountService(IUserRepository userRepository, IEmailSender emailSender, IMapper mapper, IConfiguration configuration)
+        public AccountService(IUserRepository userRepository, IEmailService emailSender, IMapper mapper, IBackgroundJobService backgroundJobService)
         {
             _userRepository = userRepository;
             _emailSender = emailSender;
             _mapper = mapper;
-            _configuration = configuration;
+            _backgroundJobService = backgroundJobService;
         }
 
         public async Task<IdentityResult> ConfirmEmailASync(string email, string token, CancellationToken cancellationToken = default)
@@ -62,10 +59,8 @@ namespace UserService.BLL.Services
             }
 
             var token = await _userRepository.GenerateEmailConfirmationTokenAsync(user, cancellationToken);
-            var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-            var confirmationEmail = $"{_configuration["BaseUrl"]}/account/email/confirmation/{email}/{encodedToken}";
 
-            await _emailSender.SendEmailAsync(email, EmailConstants.EmailConfirmation, confirmationEmail);
+            _backgroundJobService.CreateJob(() => _emailSender.SendConfirmationEmailAsync(email, token, cancellationToken));
         }
 
         public async Task GeneratePasswordResetTokenAsync(string email, CancellationToken cancellationToken = default)
@@ -81,7 +76,7 @@ namespace UserService.BLL.Services
 
             var resetCode = await _userRepository.GeneratePasswordResetTokenAsync(user, cancellationToken);
 
-            await _emailSender.SendEmailAsync(email, EmailConstants.PasswordReset, resetCode);
+            _backgroundJobService.CreateJob(() => _emailSender.SendResetPasswordEmailAsync(email, resetCode, cancellationToken));
         }
 
         public async Task<IdentityResult> ResetPasswordAsync(string email, string resetCode, string newPassword, CancellationToken cancellationToken = default)
@@ -141,10 +136,8 @@ namespace UserService.BLL.Services
 
             var user = await _userRepository.GetUserByIdAsync(userId, cancellationToken);
             var token = await _userRepository.GenerateEmailChangeTokenAsync(user, email, cancellationToken);
-            var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-            var confirmationEmail = $"{_configuration["BaseUrl"]}/account/email/change/confirmation/{user.Id}/{email}/{encodedToken}";
 
-            await _emailSender.SendEmailAsync(email, EmailConstants.EmailChange, confirmationEmail);
+            _backgroundJobService.CreateJob(() => _emailSender.SendChangeEmailTokenAsync(userId, email, token, cancellationToken));
         }
 
         public async Task<IdentityResult> ConfirmEmailChangeAsync(string userId, string email, string token, CancellationToken cancellationToken = default)

@@ -1,5 +1,7 @@
 using JwtAuthentication;
+using Hangfire;
 using UserService.API;
+using UserService.API.Filters;
 using UserService.API.Middleware;
 using UserService.BLL;
 using UserService.DAL;
@@ -8,11 +10,16 @@ using UserService.DAL.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services
+    .AddBLL()
+    .AddHangfireScheduler(builder.Configuration)
+    .AddDataAccess(builder.Configuration)
+    .AddOptions(builder.Configuration)
+    .AddIdentity()
+    .AddJwtAuthentication(builder.Configuration)
+    .AddRabbitMq();
 
-builder.Services.AddData(builder.Configuration);
-builder.Services.AddJwtAuthentication(builder.Configuration);
-builder.Services.AddBLL();
+builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -35,6 +42,11 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseHangfireDashboard("/jobs", new DashboardOptions()
+{
+    Authorization = new[] { new HangfireAuthorizationFilter() },
+});
 
 app.MapControllers();
 

@@ -2,22 +2,23 @@
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using UserService.BLL.Interfaces;
 using UserService.DAL.Interfaces.Repositories;
 using UserService.DAL.Models;
+using UserService.DAL.Options;
 
 namespace UserService.BLL.Services
 {
     public class TokenService : ITokenService
     {
-        private readonly IConfiguration _configuration;
+        private readonly JwtOptions _jwtOptions;
         private readonly IUserRepository _userRepository;
 
-        public TokenService(IConfiguration configuration, IUserRepository userRepository)
+        public TokenService(IOptions<JwtOptions> jwtOptions, IUserRepository userRepository)
         {
-            _configuration = configuration;
+            _jwtOptions = jwtOptions.Value;
             _userRepository = userRepository;
         }
 
@@ -25,10 +26,10 @@ namespace UserService.BLL.Services
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var issuer = _configuration["JwtOptions:Issuer"];
-            var audience = _configuration["JwtOptions:Audience"];
-            var key = _configuration["JwtOptions:Key"];
-            var accessTokenExpiration = _configuration.GetValue<int>("JwtOptions:AccessTokenExpirationMins");
+            var issuer = _jwtOptions.Issuer;
+            var audience = _jwtOptions.Audience;
+            var key = _jwtOptions.Key;
+            var accessTokenExpiration = _jwtOptions.AccessTokenExpirationMins;
             var tokenExpirityTimeStamp = DateTime.Now.AddMinutes(accessTokenExpiration);
             var signingCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)), SecurityAlgorithms.HmacSha512Signature);
             var claims = new List<Claim>
@@ -63,7 +64,7 @@ namespace UserService.BLL.Services
 
         public (string refreshToken, DateTime expirityDate) GenerateRefreshToken()
         {
-            var tokenLifetime = _configuration.GetValue<int>("JwtSettings:RefreshTokenExpirationDays");
+            var tokenLifetime = _jwtOptions.RefreshTokenExpirationDays;
             var refreshToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
             var expirityDate = DateTime.UtcNow.AddDays(tokenLifetime);
 
@@ -76,12 +77,12 @@ namespace UserService.BLL.Services
             var validationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
-                ValidIssuer = _configuration["JwtOptions:Issuer"],
+                ValidIssuer = _jwtOptions.Issuer,
                 ValidateAudience = true,
-                ValidAudience = _configuration["JwtOptions:Audience"],
+                ValidAudience = _jwtOptions.Audience,
                 ValidateLifetime = false,
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtOptions:Key"])),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Key)),
             };
 
             var principal = tokenHandler.ValidateToken(token, validationParameters, out _);

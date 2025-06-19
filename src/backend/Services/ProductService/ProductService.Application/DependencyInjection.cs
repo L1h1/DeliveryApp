@@ -32,6 +32,9 @@ namespace ProductService.Application
             services.Configure<CacheOptions>(
                 configuration.GetSection(nameof(CacheOptions)));
 
+            services.Configure<StorageOptions>(
+                configuration.GetSection(nameof(StorageOptions)));
+
             return services;
         }
     }

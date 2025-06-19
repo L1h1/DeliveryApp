@@ -8,7 +8,7 @@ builder.Services.AddGrpc();
 builder.Services.AddRedisCaching(builder.Configuration);
 builder.Services.AddOptions();
 
-builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddDataAccess(builder.Configuration);
 
 var app = builder.Build();
 
