@@ -1,13 +1,8 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using UserService.DAL.Data;
-using UserService.DAL.Data.Caching;
-using UserService.DAL.Interfaces.Caching;
 using UserService.DAL.Interfaces.Repositories;
 using UserService.DAL.Models;
 using UserService.DAL.Options;
@@ -50,9 +45,6 @@ namespace UserService.DAL
             services.Configure<RabbitMqOptions>(
                 configuration.GetSection(nameof(RabbitMqOptions)));
 
-            services.Configure<CacheOptions>(
-                configuration.GetSection(nameof(CacheOptions)));
-
             return services;
         }
 
@@ -63,8 +55,6 @@ namespace UserService.DAL
                 opt.Configuration = configuration.GetConnectionString("Redis");
                 opt.InstanceName = "Users_";
             });
-
-            services.AddScoped<ICacheService, RedisCacheService>();
 
             return services;
         }

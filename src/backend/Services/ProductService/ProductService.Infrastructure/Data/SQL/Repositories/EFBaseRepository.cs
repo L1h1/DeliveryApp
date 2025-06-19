@@ -12,21 +12,17 @@ namespace ProductService.Infrastructure.Data.SQL.Repositories
     {
         private protected readonly DbSet<T> _dbSet;
         private protected readonly EFDbContext _context;
-        private protected readonly ICacheService _cacheService;
 
-        public EFBaseRepository(EFDbContext context, ICacheService cacheService)
+        public EFBaseRepository(EFDbContext context)
         {
             _context = context;
             _dbSet = _context.Set<T>();
-            _cacheService = cacheService;
         }
 
         public async Task<T?> AddAsync(T tEntity, CancellationToken cancellationToken = default)
         {
             await _dbSet.AddAsync(tEntity, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
-
-            await _cacheService.SetAsync($"{typeof(T).Name}:{tEntity.Id}", tEntity, cancellationToken);
 
             return tEntity;
         }
@@ -35,25 +31,11 @@ namespace ProductService.Infrastructure.Data.SQL.Repositories
         {
             _dbSet.Remove(tEntity);
             await _context.SaveChangesAsync(cancellationToken);
-            await _cacheService.RemoveAsync($"{typeof(T).Name}:{tEntity.Id}", cancellationToken);
         }
 
         public async virtual Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            var key = $"{typeof(T).Name}:{id}";
-            var cached = await _cacheService.GetAsync<T>(key, cancellationToken);
-
-            if (cached is not null)
-            {
-                return cached;
-            }
-
             var data = await _dbSet.FindAsync(id, cancellationToken);
-
-            if (data is not null)
-            {
-                await _cacheService.SetAsync(key, data, cancellationToken);
-            }
 
             return data;
         }
@@ -96,8 +78,6 @@ namespace ProductService.Infrastructure.Data.SQL.Repositories
         {
             _dbSet.Update(tEntity);
             await _context.SaveChangesAsync(cancellationToken);
-
-            await _cacheService.SetAsync($"{typeof(T).Name}:{tEntity.Id}", tEntity, cancellationToken);
 
             return tEntity;
         }

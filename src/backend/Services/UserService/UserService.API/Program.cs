@@ -1,5 +1,5 @@
-using JwtAuthentication;
 using Hangfire;
+using JwtAuthentication;
 using UserService.API;
 using UserService.API.Filters;
 using UserService.API.Middleware;

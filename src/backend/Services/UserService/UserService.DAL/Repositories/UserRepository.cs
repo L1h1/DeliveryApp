@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using UserService.DAL.Interfaces.Caching;
 using UserService.DAL.Interfaces.Repositories;
 using UserService.DAL.Models;
 
@@ -10,13 +9,11 @@ namespace UserService.DAL.Repositories
     {
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole<Guid>> _roleManager;
-        private readonly ICacheService _cacheService;
 
-        public UserRepository(UserManager<User> userManager, RoleManager<IdentityRole<Guid>> roleManager, ICacheService cacheService)
+        public UserRepository(UserManager<User> userManager, RoleManager<IdentityRole<Guid>> roleManager)
         {
             _userManager = userManager;
             _roleManager = roleManager;
-            _cacheService = cacheService;
         }
 
         public async Task AddRoleAsync(string name, CancellationToken cancellationToken = default)
@@ -32,8 +29,6 @@ namespace UserService.DAL.Repositories
 
             var result = await _userManager.CreateAsync(user, password);
 
-            await _cacheService.SetAsync($"{typeof(User).Name}:{user.Id}", user, cancellationToken);
-
             return result;
         }
 
@@ -42,8 +37,6 @@ namespace UserService.DAL.Repositories
             cancellationToken.ThrowIfCancellationRequested();
 
             var result = await _userManager.AddToRoleAsync(user, role);
-
-            await _cacheService.SetAsync($"{typeof(User).Name}:{user.Id}", user, cancellationToken);
 
             return result;
         }
@@ -54,8 +47,6 @@ namespace UserService.DAL.Repositories
 
             var result = await _userManager.ConfirmEmailAsync(user, token);
 
-            await _cacheService.SetAsync($"{typeof(User).Name}:{user.Id}", user, cancellationToken);
-
             return result;
         }
 
@@ -65,8 +56,6 @@ namespace UserService.DAL.Repositories
 
             var result = await _userManager.ChangeEmailAsync(user, newEmail, token);
 
-            await _cacheService.SetAsync($"{typeof(User).Name}:{user.Id}", user, cancellationToken);
-
             return result;
         }
 
@@ -75,8 +64,6 @@ namespace UserService.DAL.Repositories
             cancellationToken.ThrowIfCancellationRequested();
 
             var result = await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
-
-            await _cacheService.SetAsync($"{typeof(User).Name}:{user.Id}", user, cancellationToken);
 
             return result;
         }
@@ -112,18 +99,7 @@ namespace UserService.DAL.Repositories
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var key = $"{typeof(User).Name}:{email}";
-
-            var cached = await _cacheService.GetAsync<User>(key, cancellationToken);
-
-            if (cached is not null)
-            {
-                return cached;
-            }
-
             var user = await _userManager.FindByEmailAsync(email);
-
-            await _cacheService.SetAsync(key, user, cancellationToken);
 
             return user;
         }
@@ -132,18 +108,7 @@ namespace UserService.DAL.Repositories
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var key = $"{typeof(User).Name}:{id}";
-
-            var cached = await _cacheService.GetAsync<User>(key, cancellationToken);
-
-            if (cached is not null)
-            {
-                return cached;
-            }
-
             var user = await _userManager.FindByIdAsync(id);
-
-            await _cacheService.SetAsync(key, user, cancellationToken);
 
             return user;
         }
@@ -152,17 +117,7 @@ namespace UserService.DAL.Repositories
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var key = "Roles";
-            var cached = await _cacheService.GetAsync<List<string?>>(key, cancellationToken);
-
-            if (cached is not null)
-            {
-                return cached;
-            }
-
             var result = await _roleManager.Roles.Select(r => r.Name).ToListAsync();
-
-            await _cacheService.SetAsync(key, result, cancellationToken);
 
             return result;
         }
@@ -171,17 +126,7 @@ namespace UserService.DAL.Repositories
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var key = $"Roles:{typeof(User).Name}:{user.Id}";
-            var cached = await _cacheService.GetAsync<List<string?>>(key, cancellationToken);
-
-            if (cached is not null)
-            {
-                return cached;
-            }
-
             var result = (await _userManager.GetRolesAsync(user)).ToList();
-
-            await _cacheService.SetAsync(key, result, cancellationToken);
 
             return result;
         }
@@ -210,8 +155,6 @@ namespace UserService.DAL.Repositories
 
             var result = await _userManager.ResetPasswordAsync(user, resetCode, newPassword);
 
-            await _cacheService.SetAsync($"{typeof(User).Name}:{user.Id}", user, cancellationToken);
-
             return result;
         }
 
@@ -219,18 +162,7 @@ namespace UserService.DAL.Repositories
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var key = "Roles";
-
-            var cached = await _cacheService.GetAsync<List<string?>>(key, cancellationToken);
-
-            if (cached is not null)
-            {
-                return cached.Contains(name);
-            }
-
             var result = await _roleManager.RoleExistsAsync(name);
-
-            await _cacheService.SetAsync(key, await ListRolesAsync(cancellationToken), cancellationToken);
 
             return result;
         }
@@ -240,8 +172,6 @@ namespace UserService.DAL.Repositories
             cancellationToken.ThrowIfCancellationRequested();
 
             var result = await _userManager.UpdateAsync(user);
-
-            await _cacheService.SetAsync($"{typeof(User).Name}:{user.Id}", user, cancellationToken);
 
             return result;
         }

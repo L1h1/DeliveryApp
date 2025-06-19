@@ -2,34 +2,24 @@
 using Microsoft.EntityFrameworkCore;
 using ProductService.Application.DTOs.Response;
 using ProductService.Application.Interfaces.Repositories;
-using ProductService.Application.Interfaces.Services;
 using ProductService.Domain.Entities;
 
 namespace ProductService.Infrastructure.Data.SQL.Repositories
 {
     public class ProductRepository : EFBaseRepository<Product>, IProductRepository
     {
-        public ProductRepository(EFDbContext context, ICacheService cache)
-            : base(context, cache)
+        public ProductRepository(EFDbContext context)
+            : base(context)
         {
         }
 
         public async override Task<Product?> GetByIdAsync(Guid productId, CancellationToken cancellationToken = default)
         {
-            var key = $"{typeof(Product).Name}:{productId}";
-            var cached = await _cacheService.GetAsync<Product>(key, cancellationToken);
-
-            if (cached is not null)
-            {
-                return cached;
-            }
 
             var result = await _dbSet
                 .Include(p => p.Manufacturer)
                 .Include(p => p.Categories)
                 .FirstOrDefaultAsync(p => p.Id == productId, cancellationToken);
-
-            await _cacheService.SetAsync(key, result, cancellationToken);
 
             return result;
         }

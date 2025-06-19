@@ -7,8 +7,8 @@ namespace ProductService.Infrastructure.Data.SQL.Repositories
 {
     public class CategoryRepository : EFBaseRepository<Category>, ICategoryRepository
     {
-        public CategoryRepository(EFDbContext context, ICacheService cache)
-            : base(context, cache)
+        public CategoryRepository(EFDbContext context)
+            : base(context)
         {
         }
 

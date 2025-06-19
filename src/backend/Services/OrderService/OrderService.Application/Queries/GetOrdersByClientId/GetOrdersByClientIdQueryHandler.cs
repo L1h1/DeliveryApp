@@ -1,5 +1,7 @@
-﻿using AutoMapper;
+﻿using System.Text.Json;
+using AutoMapper;
 using MediatR;
+using Microsoft.Extensions.Caching.Distributed;
 using OrderService.Application.DTOs.Response;
 using OrderService.Application.Exceptions;
 using OrderService.Application.Interfaces.Repositories;
@@ -12,16 +14,26 @@ namespace OrderService.Application.Queries.GetOrdersByClientId
         private readonly IMapper _mapper;
         private readonly IUserService _userService;
         private readonly IOrderRepository _orderRepository;
+        private readonly IDistributedCache _distributedCache;
 
-        public GetOrdersByClientIdQueryHandler(IMapper mapper, IUserService userService, IOrderRepository orderRepository)
+        public GetOrdersByClientIdQueryHandler(IMapper mapper, IUserService userService, IOrderRepository orderRepository, IDistributedCache distributedCache)
         {
             _mapper = mapper;
             _userService = userService;
             _orderRepository = orderRepository;
+            _distributedCache = distributedCache;
         }
 
         public async Task<List<OrderResponseDTO>> Handle(GetOrdersByClientIdQuery request, CancellationToken cancellationToken)
         {
+            var cacheKey = $"orders:client:{request.Id}";
+            var cached = await _distributedCache.GetStringAsync(cacheKey, cancellationToken);
+
+            if (!string.IsNullOrEmpty(cached))
+            {
+                return JsonSerializer.Deserialize<List<OrderResponseDTO>>(cached);
+            }
+
             var existingUser = await _userService.GetByIdAsync(request.Id.ToString(), cancellationToken);
 
             if (existingUser is null)
@@ -29,14 +41,18 @@ namespace OrderService.Application.Queries.GetOrdersByClientId
                 throw new NotFoundException("User with given id not found.");
             }
 
-            var response = await _orderRepository.ListByUserIdAsync(request.Id, cancellationToken);
+            var response = await _orderRepository.ListAsync(o => o.ClientId == request.Id, cancellationToken);
 
             if (response.Count == 0)
             {
                 throw new NotFoundException("No orders found.");
             }
 
-            return _mapper.Map<List<OrderResponseDTO>>(response);
+            var result = _mapper.Map<List<OrderResponseDTO>>(response);
+
+            await _distributedCache.SetStringAsync(cacheKey, JsonSerializer.Serialize(result), cancellationToken);
+
+            return result;
         }
     }
 }

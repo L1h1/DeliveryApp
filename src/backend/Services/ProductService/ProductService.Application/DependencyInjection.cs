@@ -29,9 +29,6 @@ namespace ProductService.Application
 
         public static IServiceCollection AddOptions(this IServiceCollection services, IConfiguration configuration)
         {
-            services.Configure<CacheOptions>(
-                configuration.GetSection(nameof(CacheOptions)));
-
             services.Configure<StorageOptions>(
                 configuration.GetSection(nameof(StorageOptions)));
 

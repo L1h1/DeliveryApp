@@ -11,6 +11,13 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Bills\**" />
+	  <Content Remove="Bills\**" />
+	  <EmbeddedResource Remove="Bills\**" />
+	  <None Remove="Bills\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
@@ -24,10 +31,6 @@
 		<ProjectReference Include="..\..\..\APIGateway\JwtAuthentication\JwtAuthentication.csproj" />
 		<ProjectReference Include="..\OrderService.Application\OrderService.Application.csproj" />
 		<ProjectReference Include="..\OrderService.Infrastructure\OrderService.Infrastructure.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Bills\" />
 	</ItemGroup>
 
 </Project>

@@ -7,8 +7,8 @@ namespace ProductService.Infrastructure.Data.SQL.Repositories
 {
     public class ManufacturerRepository : EFBaseRepository<Manufacturer>, IManufacturerRepository
     {
-        public ManufacturerRepository(EFDbContext context, ICacheService cache)
-            : base(context, cache)
+        public ManufacturerRepository(EFDbContext context)
+            : base(context)
         {
         }
 
