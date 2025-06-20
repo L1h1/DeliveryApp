@@ -48,9 +48,14 @@ namespace ProductService.Application.Queries.Product.GetProductById
             }
 
             var result = _mapper.Map(productDetails, _mapper.Map<DetailedProductResponseDTO>(generalData));
-            var serialized = JsonSerializer.Serialize(result);
 
-            await _distributedCache.SetStringAsync(cacheKey, serialized, cancellationToken);
+            await _distributedCache.SetStringAsync(
+                cacheKey,
+                JsonSerializer.Serialize(result),
+                new DistributedCacheEntryOptions()
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10),
+                }, cancellationToken);
 
             return result;
         }

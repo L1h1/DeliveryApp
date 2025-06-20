@@ -40,7 +40,13 @@ namespace OrderService.Application.Queries.GetOrderById
 
             var result = _mapper.Map<DetailedOrderResponseDTO>(response);
 
-            await _distributedCache.SetStringAsync(cacheKey, JsonSerializer.Serialize(result), cancellationToken);
+            await _distributedCache.SetStringAsync(
+                cacheKey,
+                JsonSerializer.Serialize(result),
+                new DistributedCacheEntryOptions()
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10),
+                }, cancellationToken);
 
             return result;
         }
