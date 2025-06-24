@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.Extensions.Caching.Distributed;
 using OrderService.Application.DTOs.Messaging;
 using OrderService.Application.DTOs.Response;
 using OrderService.Application.Exceptions;
@@ -19,6 +20,7 @@ namespace OrderService.Application.Commands.CreateOrder
         private readonly IBackgroundJobService _backgroundJobService;
         private readonly IBillService _billService;
         private readonly IMessageProducer _messageProducer;
+        private readonly IDistributedCache _distributedCache;
 
         public CreateOrderCommandHandler(
             IMapper mapper,
@@ -27,7 +29,8 @@ namespace OrderService.Application.Commands.CreateOrder
             IUserService userService,
             IBackgroundJobService backgroundJobService,
             IBillService billService,
-            IMessageProducer messageProducer)
+            IMessageProducer messageProducer,
+            IDistributedCache distributedCache)
         {
             _mapper = mapper;
             _orderRepository = orderRepository;
@@ -36,6 +39,7 @@ namespace OrderService.Application.Commands.CreateOrder
             _backgroundJobService = backgroundJobService;
             _billService = billService;
             _messageProducer = messageProducer;
+            _distributedCache = distributedCache;
         }
 
         public async Task<OrderResponseDTO> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
@@ -75,6 +79,8 @@ namespace OrderService.Application.Commands.CreateOrder
             await _orderRepository.CreateAsync(order, cancellationToken);
 
             _backgroundJobService.CreateJob(() => GenerateAndSendBillAsync(order, userEmail));
+
+            await _distributedCache.RemoveAsync($"orders:client:{order.ClientId}");
 
             return _mapper.Map<OrderResponseDTO>(order);
         }

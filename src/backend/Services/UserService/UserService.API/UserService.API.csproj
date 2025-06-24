@@ -25,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\APIGateway\JwtAuthentication\JwtAuthentication.csproj" />
     <ProjectReference Include="..\UserService.BLL\UserService.BLL.csproj" />
     <ProjectReference Include="..\UserService.DAL\UserService.DAL.csproj" />
   </ItemGroup>

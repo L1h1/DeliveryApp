@@ -12,19 +12,19 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["OcelotAPIGateway.csproj", "."]
-RUN dotnet restore "./OcelotAPIGateway.csproj"
+COPY ["APIGateway/Ocelot/OcelotGateway/OcelotGateway.csproj", "APIGateway/Ocelot/OcelotGateway/"]
+RUN dotnet restore "./APIGateway/Ocelot/OcelotGateway/OcelotGateway.csproj"
 COPY . .
-WORKDIR "/src/."
-RUN dotnet build "./OcelotAPIGateway.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/APIGateway/Ocelot/OcelotGateway"
+RUN dotnet build "./OcelotGateway.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./OcelotAPIGateway.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./OcelotGateway.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "OcelotAPIGateway.dll"]
+ENTRYPOINT ["dotnet", "OcelotGateway.dll"]

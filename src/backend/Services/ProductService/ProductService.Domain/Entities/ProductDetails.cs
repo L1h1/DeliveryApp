@@ -1,8 +1,7 @@
 ﻿namespace ProductService.Domain.Entities
 {
-    public class ProductDetails
+    public class ProductDetails : BaseEntity
     {
-        required public Guid Id { get; set; }
         public string? Description { get; set; }
         public NutritionInfo? Nutrition { get; set; }
         public List<string>? Composition { get; set; }

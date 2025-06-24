@@ -1,6 +1,7 @@
 services:
   productservice.api:
     image: ${DOCKER_REGISTRY-}productserviceapi
+    container_name: productservice.api
     build:
       context: .
       dockerfile: ProductService.API/Dockerfile
@@ -41,6 +42,7 @@ services:
 
   productservice.grpc:
     image: ${DOCKER_REGISTRY-}productservicegrpc
+    container_name: productservice.grpc
     build:
       context: .
       dockerfile: ProductService.Grpc/Dockerfile

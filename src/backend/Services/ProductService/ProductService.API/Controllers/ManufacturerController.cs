@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProductService.Application.Commands.Manufacturer.CreateManufacturer;
 using ProductService.Application.Commands.Manufacturer.DeleteManufacturer;
@@ -29,6 +30,7 @@ namespace ProductService.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateManufacturer([FromBody] ManufacturerRequestDTO dto, CancellationToken cancellationToken)
         {
             var command = new CreateManufacturerCommand(dto);
@@ -38,6 +40,7 @@ namespace ProductService.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateManufacturer([FromRoute] Guid id, [FromBody] ManufacturerRequestDTO dto, CancellationToken cancellationToken)
         {
             var command = new UpdateManufacturerCommand(id, dto);
@@ -47,6 +50,7 @@ namespace ProductService.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteManufacturer([FromRoute] Guid id, CancellationToken cancellationToken)
         {
             var command = new DeleteManufacturerCommand(id);

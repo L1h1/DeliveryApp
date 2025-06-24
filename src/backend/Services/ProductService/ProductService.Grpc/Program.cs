@@ -5,6 +5,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddGrpc();
+builder.Services.AddRedisCaching(builder.Configuration);
+builder.Services.AddOptions();
 
 builder.Services.AddDataAccess(builder.Configuration);
 

@@ -2,14 +2,16 @@
 using Microsoft.EntityFrameworkCore;
 using ProductService.Application.DTOs.Response;
 using ProductService.Application.Interfaces.Repositories;
+using ProductService.Application.Interfaces.Services;
+using ProductService.Domain.Entities;
 
 namespace ProductService.Infrastructure.Data.SQL.Repositories
 {
     public class EFBaseRepository<T> : IBaseRepository<T>
-        where T : class
+        where T : BaseEntity
     {
-        protected readonly DbSet<T> _dbSet;
-        protected readonly EFDbContext _context;
+        private protected readonly DbSet<T> _dbSet;
+        private protected readonly EFDbContext _context;
 
         public EFBaseRepository(EFDbContext context)
         {
@@ -29,6 +31,13 @@ namespace ProductService.Infrastructure.Data.SQL.Repositories
         {
             _dbSet.Remove(tEntity);
             await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        public async virtual Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            var data = await _dbSet.FindAsync(id, cancellationToken);
+
+            return data;
         }
 
         public async Task<PaginatedResponseDTO<T>> ListAsync(int pageNumber, int pageSize, Expression<Func<T, bool>>? filter = null, CancellationToken cancellationToken = default)

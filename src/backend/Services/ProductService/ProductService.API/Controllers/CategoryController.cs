@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProductService.Application.Commands.Category.CreateCategory;
 using ProductService.Application.Commands.Category.DeleteCategory;
@@ -39,6 +40,7 @@ namespace ProductService.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateCategory([FromBody] CategoryRequestDTO dto, CancellationToken cancellationToken)
         {
             var command = new CreateCategoryCommand(dto);
@@ -48,6 +50,7 @@ namespace ProductService.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateCategory([FromRoute] Guid id, [FromBody] CategoryRequestDTO dto, CancellationToken cancellationToken)
         {
             var command = new UpdateCategoryCommand(id, dto);

@@ -1,6 +1,7 @@
 services:
   orderservice.api:
     image: ${DOCKER_REGISTRY-}orderserviceapi
+    container_name: orderservice.api
     build:
       context: .
       dockerfile: OrderService.API/Dockerfile

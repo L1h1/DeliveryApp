@@ -22,14 +22,14 @@ namespace UserService.BLL.Services
         public async Task SendChangeEmailTokenAsync(string userId, string email, string token, CancellationToken cancellationToken = default)
         {
             var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-            var confirmationEmail = $"{_emailOptions.BaseUrl}/account/confirm-email-change/{userId}/{email}/{encodedToken}";
+            var confirmationEmail = $"{_emailOptions.BaseUrl}/account/email/change/confirmation/{userId}/{email}/{encodedToken}";
             await SendEmailAsync(email, EmailConstants.EmailChange, confirmationEmail);
         }
 
         public async Task SendConfirmationEmailAsync(string email, string token, CancellationToken cancellationToken = default)
         {
             var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-            var confirmationEmail = $"{_emailOptions.BaseUrl}/account/email-confirmation/{email}/{encodedToken}";
+            var confirmationEmail = $"{_emailOptions.BaseUrl}/account/email/confirmation/{email}/{encodedToken}";
             await SendEmailAsync(email, EmailConstants.EmailConfirmation, confirmationEmail);
         }
 

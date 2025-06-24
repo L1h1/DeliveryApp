@@ -1,23 +1,23 @@
 services:
   userservice.api:
     image: ${DOCKER_REGISTRY-}userserviceapi
+    container_name: userservice.api
     build:
       context: .
       dockerfile: UserService.API/Dockerfile
     networks:
       - delivery-net
     ports:
-      - 5000:5001
+      - 5000:5000
       - 5001:5001
     depends_on:
       - userservice.database
     env_file:
       - .env
-    volumes:
-      - bills:/app/SharedBills
 
   userservice.grpc:
     image: ${DOCKER_REGISTRY-}userservicegrpc
+    container_name: userservice.grpc
     build:
       context: .
       dockerfile: UserService.Grpc/Dockerfile
@@ -59,7 +59,6 @@ services:
 
 volumes:
   pgdata:
-  bills:
 
 networks:
   delivery-net:

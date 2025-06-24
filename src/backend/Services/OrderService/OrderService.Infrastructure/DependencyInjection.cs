@@ -51,5 +51,16 @@ namespace OrderService.Infrastructure
 
             return services;
         }
+
+        public static IServiceCollection AddRedisCaching(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddStackExchangeRedisCache(opt =>
+            {
+                opt.Configuration = configuration.GetConnectionString("Redis");
+                opt.InstanceName = "Orders_";
+            });
+
+            return services;
+        }
     }
 }
