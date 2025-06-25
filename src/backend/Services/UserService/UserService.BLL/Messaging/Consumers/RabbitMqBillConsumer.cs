@@ -2,6 +2,7 @@
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using UserService.BLL.Constants;
@@ -15,13 +16,16 @@ namespace UserService.BLL.Messaging.Consumers
         private readonly RabbitMqConnection _connection;
         private readonly IServiceScopeFactory _scopeFactory;
         private IChannel _channel;
+        private readonly ILogger<RabbitMqBillConsumer> _logger;
 
         public RabbitMqBillConsumer(
             RabbitMqConnection connection,
-            IServiceScopeFactory scopeFactory)
+            IServiceScopeFactory scopeFactory,
+            ILogger<RabbitMqBillConsumer> logger)
         {
             _connection = connection;
             _scopeFactory = scopeFactory;
+            _logger = logger;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -48,6 +52,8 @@ namespace UserService.BLL.Messaging.Consumers
                 var body = eventArgs.Body.ToArray();
                 var jsonMessage = Encoding.UTF8.GetString(body);
                 var message = JsonSerializer.Deserialize<BillDTO>(jsonMessage);
+
+                _logger.LogInformation("Recieved bill message for @{email} through rabbitMQ broker", message.Email);
 
                 jobService.CreateJob(() =>
                     emailService.SendEmailAsync(message.Email, EmailConstants.OrderCreatedBill, $"<pre>{message.Contents}</pre>"));

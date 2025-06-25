@@ -7,6 +7,7 @@ using UserService.DAL;
 using UserService.DAL.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddSerilogLogging();
 
 // Add services to the container.
 builder.Services

@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35707.178 d17.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{1580A6E8-96E2-4F48-9600-E0DEAEFB8282}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "logstash", "logstash", "{50076B78-780B-4CE3-B6E1-10C71E44FBFD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "pipeline", "pipeline", "{7D54BF14-6E81-4778-9573-2CF2139E2585}"
+	ProjectSection(SolutionItems) = preProject
+		logstash\pipeline\logstash.conf = logstash\pipeline\logstash.conf
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1580A6E8-96E2-4F48-9600-E0DEAEFB8282}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1580A6E8-96E2-4F48-9600-E0DEAEFB8282}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1580A6E8-96E2-4F48-9600-E0DEAEFB8282}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1580A6E8-96E2-4F48-9600-E0DEAEFB8282}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7D54BF14-6E81-4778-9573-2CF2139E2585} = {50076B78-780B-4CE3-B6E1-10C71E44FBFD}
+	EndGlobalSection
+EndGlobal
