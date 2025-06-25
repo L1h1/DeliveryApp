@@ -1,4 +1,5 @@
 using Microsoft.Extensions.FileProviders;
+using ProductService.API;
 using ProductService.API.Middleware;
 using ProductService.Application;
 using ProductService.Infrastructure;
@@ -6,6 +7,7 @@ using ProductService.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
+builder.AddSerilogLogging();
 
 // Add services to the container.
 builder.Services

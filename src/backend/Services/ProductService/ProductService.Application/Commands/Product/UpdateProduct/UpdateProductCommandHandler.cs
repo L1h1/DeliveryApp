@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using ProductService.Application.DTOs.Response;
 using ProductService.Application.Exceptions;
 using ProductService.Application.Interfaces.Repositories;
@@ -12,17 +13,26 @@ namespace ProductService.Application.Commands.Product.UpdateProduct
         private readonly IProductRepository _productRepository;
         private readonly ICategoryRepository _categoryRepository;
         private readonly IManufacturerRepository _manufacturerRepository;
+        private readonly ILogger<UpdateProductCommandHandler> _logger;
 
-        public UpdateProductCommandHandler(IMapper mapper, IProductRepository productRepository, ICategoryRepository categoryRepository, IManufacturerRepository manufacturerRepository)
+        public UpdateProductCommandHandler(
+            IMapper mapper,
+            IProductRepository productRepository,
+            ICategoryRepository categoryRepository,
+            IManufacturerRepository manufacturerRepository,
+            ILogger<UpdateProductCommandHandler> logger)
         {
             _mapper = mapper;
             _productRepository = productRepository;
             _categoryRepository = categoryRepository;
             _manufacturerRepository = manufacturerRepository;
+            _logger = logger;
         }
 
         public async Task<ProductResponseDTO> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Updating product @{id}", request.Id);
+
             var existingProduct = await _productRepository.GetByIdAsync(request.Id, cancellationToken);
 
             if (existingProduct is null)
@@ -37,6 +47,8 @@ namespace ProductService.Application.Commands.Product.UpdateProduct
 
             existingProduct = await _productRepository.UpdateAsync(existingProduct, cancellationToken);
 
+            _logger.LogInformation("Successfully updated product @{id}", request.Id);
+
             return _mapper.Map<ProductResponseDTO>(existingProduct);
         }
 
@@ -44,6 +56,8 @@ namespace ProductService.Application.Commands.Product.UpdateProduct
         {
             if (product.ManufacturerId != newManufacturerId)
             {
+                _logger.LogInformation("Updating product @{id} manufacturer", product.Id);
+
                 var manufacturer = await _manufacturerRepository.GetByIdAsync(newManufacturerId, cancellationToken);
 
                 if (manufacturer is null)
@@ -52,6 +66,8 @@ namespace ProductService.Application.Commands.Product.UpdateProduct
                 }
 
                 product.Manufacturer = manufacturer;
+
+                _logger.LogInformation("Successfully updated product @{id} manufacturer", product.Id);
             }
         }
 
@@ -62,6 +78,8 @@ namespace ProductService.Application.Commands.Product.UpdateProduct
 
             if (!currentCategoryIds.SetEquals(requestedIdsSet))
             {
+                _logger.LogInformation("Updating product @{id} categories", product.Id);
+
                 var categories = await _categoryRepository.ListByIdsAsync(requestedCategoryIds, cancellationToken);
 
                 if (categories.Count < requestedCategoryIds.Count)
@@ -70,6 +88,8 @@ namespace ProductService.Application.Commands.Product.UpdateProduct
                 }
 
                 product.Categories = categories.ToList();
+
+                _logger.LogInformation("Successfully updated product @{id} categories", product.Id);
             }
         }
     }

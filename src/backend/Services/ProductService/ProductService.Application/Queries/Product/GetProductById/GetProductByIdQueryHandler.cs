@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using ProductService.Application.DTOs.Response;
 using ProductService.Application.Exceptions;
 using ProductService.Application.Interfaces.Repositories;
@@ -11,16 +12,24 @@ namespace ProductService.Application.Queries.Product.GetProductById
         private readonly IMapper _mapper;
         private readonly IProductRepository _productRepository;
         private readonly IProductDetailsRepository _productDetailsRepository;
+        private readonly ILogger<GetProductByIdQueryHandler> _logger;
 
-        public GetProductByIdQueryHandler(IMapper mapper, IProductRepository productRepository, IProductDetailsRepository productDetailsRepository)
+        public GetProductByIdQueryHandler(
+            IMapper mapper,
+            IProductRepository productRepository,
+            IProductDetailsRepository productDetailsRepository,
+            ILogger<GetProductByIdQueryHandler> logger)
         {
             _mapper = mapper;
             _productRepository = productRepository;
             _productDetailsRepository = productDetailsRepository;
+            _logger = logger;
         }
 
         public async Task<DetailedProductResponseDTO> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Retrieving general product @{id} data", request.Id);
+
             var generalData = await _productRepository.GetByIdAsync(request.Id, cancellationToken);
 
             if (generalData is null)
@@ -28,12 +37,16 @@ namespace ProductService.Application.Queries.Product.GetProductById
                 throw new NotFoundException("Product not found.");
             }
 
+            _logger.LogInformation("Retrieving details for product @{id}", request.Id);
+
             var productDetails = await _productDetailsRepository.GetByIdAsync(request.Id, cancellationToken);
 
             if (productDetails is null)
             {
                 throw new NotFoundException("No details found for the given product.");
             }
+
+            _logger.LogInformation("Successfully retrived all product @{id} data", request.Id);
 
             return _mapper.Map(productDetails, _mapper.Map<DetailedProductResponseDTO>(generalData));
         }
