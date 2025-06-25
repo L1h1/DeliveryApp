@@ -18,17 +18,23 @@ namespace OrderService.API.Controllers
     public class OrderController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly ILogger<OrderController> _logger;
 
-        public OrderController(IMediator mediator)
+        public OrderController(IMediator mediator, ILogger<OrderController> logger)
         {
             _mediator = mediator;
+            _logger = logger;
         }
 
         [HttpGet("{orderId}")]
         public async Task<IActionResult> GetOrderById([FromRoute] Guid orderId, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Attempting to retrieve order @{id}", orderId);
+
             var query = new GetOrderByIdQuery(orderId);
             var response = await _mediator.Send(query, cancellationToken);
+
+            _logger.LogInformation("Successfully retrieved order @{id}", orderId);
 
             return Ok(response);
         }
@@ -36,8 +42,12 @@ namespace OrderService.API.Controllers
         [HttpGet("client/{clientId}")]
         public async Task<IActionResult> GetOrdersByClientId([FromRoute] Guid clientId, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Attempting to retrieve orders for client @{id}", clientId);
+
             var query = new GetOrdersByClientIdQuery(clientId);
             var response = await _mediator.Send(query, cancellationToken);
+
+            _logger.LogInformation("Successfully retrieved orders for client @{id}", clientId);
 
             return Ok(response);
         }
@@ -45,8 +55,12 @@ namespace OrderService.API.Controllers
         [HttpGet("courier/{courierId}")]
         public async Task<IActionResult> GetActiveOrdersByCourierId([FromRoute] Guid courierId, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Attempting to retrieve orders for courier @{id}", courierId);
+
             var query = new GetOrdersByCourierIdQuery(courierId);
             var response = await _mediator.Send(query, cancellationToken);
+
+            _logger.LogInformation("Successfully retrieved orders for courier @{id}", courierId);
 
             return Ok(response);
         }
@@ -54,8 +68,12 @@ namespace OrderService.API.Controllers
         [HttpGet("status/{status}")]
         public async Task<IActionResult> GetOrdersByStatus([FromRoute] OrderStatus status, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Attempting to get orders with @{status}", status);
+
             var query = new GetOrdersByStatusQuery(status);
             var response = await _mediator.Send(query, cancellationToken);
+
+            _logger.LogInformation("Successfully retrieved orders with @{status}", status);
 
             return Ok(response);
         }
@@ -63,8 +81,12 @@ namespace OrderService.API.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateOrder([FromBody] OrderRequestDTO requestDTO, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Attempting to create order for client @{id}", requestDTO.ClientId);
+
             var command = new CreateOrderCommand(requestDTO);
             var response = await _mediator.Send(command, cancellationToken);
+
+            _logger.LogInformation("Successfully created order @{id} for client @{id}", response.Id, requestDTO.ClientId);
 
             return Ok(response);
         }
@@ -72,8 +94,12 @@ namespace OrderService.API.Controllers
         [HttpPatch("{orderId}/courier")]
         public async Task<IActionResult> AssignCourierAsync([FromRoute] Guid orderId, [FromBody] Guid courierId, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Attempting to assign courier @{id} to order @{id}", courierId, orderId);
+
             var command = new AssignCourierCommand(orderId, courierId);
             await _mediator.Send(command, cancellationToken);
+
+            _logger.LogInformation("Successfully assigned courier @{id} to order @{id}", courierId, orderId);
 
             return Ok(new { Message = "Courier assigned." });
         }
@@ -81,8 +107,12 @@ namespace OrderService.API.Controllers
         [HttpPatch("{orderId}/status")]
         public async Task<IActionResult> UpdateOrderStatus([FromRoute] Guid orderId, [FromBody] OrderStatus status, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Attempting to update order @{id} with status @{status}", orderId, status);
+
             var command = new UpdateOrderStatusCommand(orderId, status);
             await _mediator.Send(command, cancellationToken);
+
+            _logger.LogInformation("Successfully updated order @{id} with status @{status}", orderId, status);
 
             return Ok(new { Message = "Status updated." });
         }
@@ -90,8 +120,12 @@ namespace OrderService.API.Controllers
         [HttpDelete("{orderId}")]
         public async Task<IActionResult> DeleteOrderCommand([FromRoute] Guid orderId, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Attempting to delete order @{id}", orderId);
+
             var command = new DeleteOrderCommand(orderId);
             var response = await _mediator.Send(command, cancellationToken);
+
+            _logger.LogInformation("Successfully deleted order @{id}", orderId);
 
             return Ok(new { Message = "Order deleted." });
         }

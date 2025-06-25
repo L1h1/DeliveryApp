@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using OrderService.Application.DTOs.Messaging;
 using OrderService.Application.DTOs.Response;
 using OrderService.Application.Exceptions;
@@ -19,6 +20,7 @@ namespace OrderService.Application.Commands.CreateOrder
         private readonly IBackgroundJobService _backgroundJobService;
         private readonly IBillService _billService;
         private readonly IMessageProducer _messageProducer;
+        private readonly ILogger<CreateOrderCommandHandler> _logger;
 
         public CreateOrderCommandHandler(
             IMapper mapper,
@@ -27,7 +29,8 @@ namespace OrderService.Application.Commands.CreateOrder
             IUserService userService,
             IBackgroundJobService backgroundJobService,
             IBillService billService,
-            IMessageProducer messageProducer)
+            IMessageProducer messageProducer,
+            ILogger<CreateOrderCommandHandler> logger)
         {
             _mapper = mapper;
             _orderRepository = orderRepository;
@@ -36,10 +39,13 @@ namespace OrderService.Application.Commands.CreateOrder
             _backgroundJobService = backgroundJobService;
             _billService = billService;
             _messageProducer = messageProducer;
+            _logger = logger;
         }
 
         public async Task<OrderResponseDTO> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Creating order for client @{id}", request.RequestDTO.ClientId);
+
             var userEmail = await _userService.GetByIdAsync(request.RequestDTO.ClientId.ToString(), cancellationToken);
 
             if (userEmail is null)
@@ -74,7 +80,11 @@ namespace OrderService.Application.Commands.CreateOrder
 
             await _orderRepository.CreateAsync(order, cancellationToken);
 
+            _logger.LogInformation("Scheduling bill email job for order @{id}", order.Id);
+
             _backgroundJobService.CreateJob(() => GenerateAndSendBillAsync(order, userEmail));
+
+            _logger.LogInformation("Successfully created order @{orderId} for client @{clientId}", order.Id, order.ClientId);
 
             return _mapper.Map<OrderResponseDTO>(order);
         }

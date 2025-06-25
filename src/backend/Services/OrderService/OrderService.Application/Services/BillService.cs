@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Text;
+using Microsoft.Extensions.Logging;
 using OrderService.Application.Interfaces.Services;
 using OrderService.Domain.Entities;
 
@@ -13,8 +14,17 @@ namespace OrderService.Application.Services
         private const int SumColumnWidth = 10;
         private const int TotalWidth = ItemColumnWidth + QuantityColumnWidth + PriceColumnWidth + SumColumnWidth + 3;
 
+        private readonly ILogger<BillService> _logger;
+
+        public BillService(ILogger<BillService> logger)
+        {
+            _logger = logger;
+        }
+
         public async Task<string> CreateDocumentAsync(Order order, CancellationToken cancellationToken = default)
         {
+            _logger.LogInformation("Creating bill document for order @{id}", order.Id);
+
             var sb = new StringBuilder();
             var culture = CultureInfo.InvariantCulture;
 
@@ -45,6 +55,8 @@ namespace OrderService.Application.Services
             var total = order.TotalPrice.ToString("F2", culture).PadLeft(SumColumnWidth);
             sb.AppendLine(Pad("TOTAL:", TotalWidth - SumColumnWidth) + total);
             sb.AppendLine("Thank you for your order!");
+
+            _logger.LogInformation("Successfully created bill document for order @{id}", order.Id);
 
             return sb.ToString();
         }

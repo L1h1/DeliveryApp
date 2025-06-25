@@ -1,4 +1,5 @@
 using Hangfire;
+using OrderService.API;
 using OrderService.API.Filters;
 using OrderService.API.Middleware;
 using OrderService.Application;
@@ -6,6 +7,7 @@ using OrderService.Infrastructure;
 using OrderService.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddSerilogLogging();
 
 // Add services to the container.
 builder.Services
