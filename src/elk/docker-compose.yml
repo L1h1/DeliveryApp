@@ -11,6 +11,8 @@ services:
       - "9200:9200"
     networks:
       - delivery-net
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
     healthcheck:
       test: curl -s http://elasticsearch:9200 >/dev/null || exit 1
       interval: 30s
@@ -47,3 +49,6 @@ services:
 networks:
   delivery-net:
     external: true
+
+volumes:
+  esdata:
