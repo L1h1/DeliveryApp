@@ -15,7 +15,7 @@ namespace UserService.BLL.Messaging.Consumers
     {
         private readonly RabbitMqConnection _connection;
         private readonly IServiceScopeFactory _scopeFactory;
-        private IChannel _channel;
+        private readonly IChannel _channel;
         private readonly ILogger<RabbitMqBillConsumer> _logger;
 
         public RabbitMqBillConsumer(
@@ -26,13 +26,13 @@ namespace UserService.BLL.Messaging.Consumers
             _connection = connection;
             _scopeFactory = scopeFactory;
             _logger = logger;
+
+            _channel = _connection.Connection.CreateChannelAsync().Result;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             stoppingToken.ThrowIfCancellationRequested();
-
-            _channel = await _connection.Connection.CreateChannelAsync();
 
             var queueName = "bills";
 

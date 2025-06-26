@@ -20,7 +20,7 @@ services:
     ports:
       - 27002:27017
     volumes:
-      - mongoorders:/var/lb/mongo/data
+      - mongoorders:/data/db
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}

@@ -39,9 +39,9 @@ namespace UserService.API
         {
             builder.Host.UseSerilog((context, config) =>
             {
-                config.WriteTo.Async(a => a.Http(
+                config.WriteTo.Http(
                     requestUri: "http://logstash:5644",
-                    queueLimitBytes: 100 * 1024 * 1024));
+                    queueLimitBytes: 100 * 1024 * 1024);
             });
 
             return builder;
