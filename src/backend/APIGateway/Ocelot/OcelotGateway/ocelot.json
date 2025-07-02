@@ -313,9 +313,9 @@
       }
     },
     {
-      "UpstreamPathTemplate": "/orders/courier{courierId}/assign/{orderId}",
-      "UpstreamHttpMethod": [ "POST" ],
-      "DownstreamPathTemplate": "/api/orders/courier{courierId}/assign/{orderId}",
+      "UpstreamPathTemplate": "/orders/{orderId}/courier",
+      "UpstreamHttpMethod": [ "PATCH" ],
+      "DownstreamPathTemplate": "/api/orders/{orderId}/courier",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -331,9 +331,9 @@
       }
     },
     {
-      "UpstreamPathTemplate": "/orders/status/update/{orderId}/{status}",
-      "UpstreamHttpMethod": [ "POST" ],
-      "DownstreamPathTemplate": "/api/orders/status/update/{orderId}/{status}",
+      "UpstreamPathTemplate": "/orders/{orderId}/status",
+      "UpstreamHttpMethod": [ "PATCH" ],
+      "DownstreamPathTemplate": "/api/orders/{orderId}/status",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -491,9 +491,9 @@
       }
     },
     {
-      "UpstreamPathTemplate": "/manufacturers{id}",
+      "UpstreamPathTemplate": "/manufacturers/{id}",
       "UpstreamHttpMethod": [ "DELETE" ],
-      "DownstreamPathTemplate": "/api/manufacturers{id}",
+      "DownstreamPathTemplate": "/api/manufacturers/{id}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {

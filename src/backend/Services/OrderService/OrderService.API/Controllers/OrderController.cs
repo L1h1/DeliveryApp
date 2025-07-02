@@ -75,9 +75,9 @@ namespace OrderService.API.Controllers
             return Ok(response);
         }
 
-        [HttpPost("courier/{courierId}/assign/{orderId}")]
+        [HttpPatch("orders/{orderId}/courier")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> AssignCourierAsync([FromRoute] Guid orderId, [FromRoute] Guid courierId, CancellationToken cancellationToken)
+        public async Task<IActionResult> AssignCourierAsync([FromRoute] Guid orderId, [FromBody] Guid courierId, CancellationToken cancellationToken)
         {
             var command = new AssignCourierCommand(orderId, courierId);
             await _mediator.Send(command, cancellationToken);
@@ -85,9 +85,9 @@ namespace OrderService.API.Controllers
             return Ok(new { Message = "Courier assigned." });
         }
 
-        [HttpPost("status/update/{orderId}/{status}")]
+        [HttpPatch("orders/{orderId}/status")]
         [Authorize(Roles = "Admin, Courier")]
-        public async Task<IActionResult> UpdateOrderStatus([FromRoute] Guid orderId, [FromRoute] OrderStatus status, CancellationToken cancellationToken)
+        public async Task<IActionResult> UpdateOrderStatus([FromRoute] Guid orderId, [FromBody] OrderStatus status, CancellationToken cancellationToken)
         {
             var command = new UpdateOrderStatusCommand(orderId, status);
             await _mediator.Send(command, cancellationToken);
