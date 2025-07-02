@@ -7,7 +7,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddGrpc();
 builder.Services
     .AddDataAccess(builder.Configuration)
-    .AddIdentity();
+    .AddIdentity()
+    .AddOptions(builder.Configuration)
+    .AddRedisCaching(builder.Configuration);
 
 var app = builder.Build();
 

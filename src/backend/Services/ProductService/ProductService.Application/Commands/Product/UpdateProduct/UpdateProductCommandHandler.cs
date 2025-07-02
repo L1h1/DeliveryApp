@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.Extensions.Caching.Distributed;
 using ProductService.Application.DTOs.Response;
 using ProductService.Application.Exceptions;
 using ProductService.Application.Interfaces.Repositories;
@@ -12,17 +13,26 @@ namespace ProductService.Application.Commands.Product.UpdateProduct
         private readonly IProductRepository _productRepository;
         private readonly ICategoryRepository _categoryRepository;
         private readonly IManufacturerRepository _manufacturerRepository;
+        private readonly IDistributedCache _distributedCache;
 
-        public UpdateProductCommandHandler(IMapper mapper, IProductRepository productRepository, ICategoryRepository categoryRepository, IManufacturerRepository manufacturerRepository)
+        public UpdateProductCommandHandler(
+            IMapper mapper,
+            IProductRepository productRepository,
+            ICategoryRepository categoryRepository,
+            IManufacturerRepository manufacturerRepository,
+            IDistributedCache distributedCache)
         {
             _mapper = mapper;
             _productRepository = productRepository;
             _categoryRepository = categoryRepository;
             _manufacturerRepository = manufacturerRepository;
+            _distributedCache = distributedCache;
         }
 
         public async Task<ProductResponseDTO> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
         {
+            var cacheKey = $"product:{request.Id}";
+
             var existingProduct = await _productRepository.GetByIdAsync(request.Id, cancellationToken);
 
             if (existingProduct is null)
@@ -36,6 +46,8 @@ namespace ProductService.Application.Commands.Product.UpdateProduct
             _mapper.Map(request.RequestDTO, existingProduct);
 
             existingProduct = await _productRepository.UpdateAsync(existingProduct, cancellationToken);
+
+            await _distributedCache.RemoveAsync(cacheKey, cancellationToken);
 
             return _mapper.Map<ProductResponseDTO>(existingProduct);
         }

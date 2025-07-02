@@ -1,10 +1,7 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using UserService.DAL.Data;
 using UserService.DAL.Interfaces.Repositories;
 using UserService.DAL.Models;
@@ -51,33 +48,13 @@ namespace UserService.DAL
             return services;
         }
 
-        public static IServiceCollection AddJWTAuth(this IServiceCollection services)
+        public static IServiceCollection AddRedisCaching(this IServiceCollection services, IConfiguration configuration)
         {
-            var jwtOptions = services.BuildServiceProvider().GetRequiredService<IOptions<JwtOptions>>();
-
-            services.AddAuthentication(options =>
+            services.AddStackExchangeRedisCache(opt =>
             {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidIssuer = jwtOptions.Value.Issuer,
-                    ValidateAudience = false,
-                    ValidAudience = jwtOptions.Value.Audience,
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(
-                        System.Text.Encoding.UTF8.GetBytes(jwtOptions.Value.Key)),
-                };
+                opt.Configuration = configuration.GetConnectionString("Redis");
+                opt.InstanceName = "Users_";
             });
-
-            services.AddAuthorizationBuilder()
-                .AddPolicy("Admin", p => p.RequireRole("Admin"))
-                .AddPolicy("Client", p => p.RequireRole("Client"))
-                .AddPolicy("Courier", p => p.RequireRole("Courier"));
 
             return services;
         }
