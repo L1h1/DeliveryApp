@@ -1,10 +1,8 @@
 ﻿using AutoMapper;
 using MediatR;
 using Microsoft.Extensions.Caching.Distributed;
-using OrderService.Application.DTOs.Messaging;
 using OrderService.Application.DTOs.Response;
 using OrderService.Application.Exceptions;
-using OrderService.Application.Interfaces.Messaging.Producers;
 using OrderService.Application.Interfaces.Repositories;
 using OrderService.Application.Interfaces.Services;
 using OrderService.Domain.Entities;
@@ -17,9 +15,7 @@ namespace OrderService.Application.Commands.CreateOrder
         private readonly IOrderRepository _orderRepository;
         private readonly IProductService _productService;
         private readonly IUserService _userService;
-        private readonly IBackgroundJobService _backgroundJobService;
-        private readonly IBillService _billService;
-        private readonly IMessageProducer _messageProducer;
+        private readonly IOrderFlowService _orderFlowService;
         private readonly IDistributedCache _distributedCache;
 
         public CreateOrderCommandHandler(
@@ -27,19 +23,15 @@ namespace OrderService.Application.Commands.CreateOrder
             IOrderRepository orderRepository,
             IProductService productService,
             IUserService userService,
-            IBackgroundJobService backgroundJobService,
-            IBillService billService,
-            IMessageProducer messageProducer,
-            IDistributedCache distributedCache)
+            IDistributedCache distributedCache,
+            IOrderFlowService orderFlowService)
         {
             _mapper = mapper;
             _orderRepository = orderRepository;
             _productService = productService;
             _userService = userService;
-            _backgroundJobService = backgroundJobService;
-            _billService = billService;
-            _messageProducer = messageProducer;
             _distributedCache = distributedCache;
+            _orderFlowService = orderFlowService;
         }
 
         public async Task<OrderResponseDTO> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
@@ -78,22 +70,11 @@ namespace OrderService.Application.Commands.CreateOrder
 
             await _orderRepository.CreateAsync(order, cancellationToken);
 
-            _backgroundJobService.CreateJob(() => GenerateAndSendBillAsync(order, userEmail));
+            await _orderFlowService.ProcessOrderCreation(order, userEmail, cancellationToken);
 
             await _distributedCache.RemoveAsync($"orders:client:{order.ClientId}");
 
             return _mapper.Map<OrderResponseDTO>(order);
-        }
-
-        public async Task GenerateAndSendBillAsync(Order order, string email)
-        {
-            var contents = await _billService.CreateDocumentAsync(order);
-
-            await _messageProducer.SendMessageAsync("bills", new BillDTO
-            {
-                Email = email,
-                Contents = contents
-            });
         }
     }
 }
