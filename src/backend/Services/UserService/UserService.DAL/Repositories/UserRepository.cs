@@ -16,11 +16,13 @@ namespace UserService.DAL.Repositories
             _roleManager = roleManager;
         }
 
-        public async Task AddRoleAsync(string name, CancellationToken cancellationToken = default)
+        public async Task<IdentityResult> AddRoleAsync(string name, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            await _roleManager.CreateAsync(new IdentityRole<Guid>(name));
+            var result = await _roleManager.CreateAsync(new IdentityRole<Guid>(name));
+
+            return result;
         }
 
         public async Task<IdentityResult> AddUserAsync(User user, string password, CancellationToken cancellationToken = default)

@@ -15,7 +15,7 @@ namespace UserService.Tests
         {
             Id = Guid.NewGuid(),
             Email = "test@example.com",
-            UserName = "testuser",
+            UserName = Guid.NewGuid().ToString().Substring(0,16),
         };
 
         public static TokenValidationParameters TestTokenValidationParameters(JwtOptions jwtOptions) => new TokenValidationParameters()

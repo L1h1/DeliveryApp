@@ -15,7 +15,7 @@ namespace UserService.DAL.Interfaces.Repositories
         Task<string> GeneratePasswordResetTokenAsync(User user, CancellationToken cancellationToken = default);
         Task<IdentityResult> ResetPasswordAsync(User user, string resetCode, string newPassword, CancellationToken cancellationToken = default);
         Task<List<string>> ListRolesAsync(CancellationToken cancellationToken = default);
-        Task AddRoleAsync(string name, CancellationToken cancellationToken = default);
+        Task<IdentityResult> AddRoleAsync(string name, CancellationToken cancellationToken = default);
         Task<IdentityResult> AssignRoleAsync(User user, string role, CancellationToken cancellationToken = default);
         Task<bool> RoleExistsAsync(string name, CancellationToken cancellationToken = default);
         Task<List<User>> ListUsersByRoleAsync(string role, CancellationToken cancellationToken = default);
