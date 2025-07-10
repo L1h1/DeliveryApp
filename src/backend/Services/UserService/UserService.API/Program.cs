@@ -5,6 +5,7 @@ using UserService.API.Filters;
 using UserService.API.Middleware;
 using UserService.BLL;
 using UserService.DAL;
+using UserService.DAL.Data;
 using UserService.DAL.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,13 +13,17 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services
     .AddBLL()
-    .AddHangfireScheduler(builder.Configuration)
     .AddDataAccess(builder.Configuration)
     .AddOptions(builder.Configuration)
     .AddIdentity()
     .AddJwtAuthentication(builder.Configuration)
     .AddRabbitMq()
     .AddRedisCaching(builder.Configuration);
+
+if (!builder.Environment.IsEnvironment("Testing"))
+{
+    builder.Services.AddHangfireScheduler(builder.Configuration);
+}
 
 builder.Services.AddControllers();
 
@@ -29,12 +34,17 @@ builder.Services.AddSwagger();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (!app.Environment.IsProduction())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 
     app.ApplyMigrations();
+}
+
+if (app.Environment.IsEnvironment("Testing"))
+{
+    await DbInitializer.SeedData(app.Services);
 }
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
@@ -44,11 +54,16 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseHangfireDashboard("/jobs", new DashboardOptions()
+if (!app.Environment.IsEnvironment("Testing"))
 {
-    Authorization = new[] { new HangfireAuthorizationFilter() },
-});
+    app.UseHangfireDashboard("/jobs", new DashboardOptions()
+    {
+        Authorization = new[] { new HangfireAuthorizationFilter() },
+    });
+}
 
 app.MapControllers();
 
 app.Run();
+
+public partial class Program;
