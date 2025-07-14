@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using OrderService.Application.DTOs.Response;
 using OrderService.Application.Exceptions;
 using OrderService.Application.Interfaces.Repositories;
@@ -13,16 +14,24 @@ namespace OrderService.Application.Queries.GetOrdersByCourierId
         private readonly IMapper _mapper;
         private readonly IUserService _userService;
         private readonly IOrderRepository _orderRepository;
+        private readonly ILogger<GetOrdersByCourierIdQueryHandler> _logger;
 
-        public GetOrdersByCourierIdQueryHandler(IMapper mapper, IUserService userService, IOrderRepository orderRepository)
+        public GetOrdersByCourierIdQueryHandler(
+            IMapper mapper,
+            IUserService userService,
+            IOrderRepository orderRepository,
+            ILogger<GetOrdersByCourierIdQueryHandler> logger)
         {
             _mapper = mapper;
             _userService = userService;
             _orderRepository = orderRepository;
+            _logger = logger;
         }
 
         public async Task<List<OrderResponseDTO>> Handle(GetOrdersByCourierIdQuery request, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Retrieving orders for courier @{id}", request.Id);
+
             var existingUser = await _userService.GetByIdAsync(request.Id.ToString(), cancellationToken);
 
             if (existingUser is null)
@@ -39,6 +48,8 @@ namespace OrderService.Application.Queries.GetOrdersByCourierId
             {
                 throw new NotFoundException("No orders found.");
             }
+
+            _logger.LogInformation("Successfully retrieved orders for courier @{id}", request.Id);
 
             return _mapper.Map<List<OrderResponseDTO>>(response);
         }

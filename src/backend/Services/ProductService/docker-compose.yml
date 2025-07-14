@@ -35,7 +35,7 @@ services:
     ports:
       - 27001:27017
     volumes:
-      - mongoproduct:/var/lib/mongo/data
+      - mongoproduct:/data/db
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}

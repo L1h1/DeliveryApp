@@ -15,17 +15,23 @@ namespace ProductService.API.Controllers
     public class CategoryController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly ILogger<CategoryController> _logger;
 
-        public CategoryController(IMediator mediator)
+        public CategoryController(IMediator mediator, ILogger<CategoryController> logger)
         {
             _mediator = mediator;
+            _logger = logger;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllCategories([FromQuery] PageRequestDTO page, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Attempting to retrieve category page {@page}", page);
+
             var query = new GetAllCategoriesQuery(page);
             var response = await _mediator.Send(query, cancellationToken);
+
+            _logger.LogInformation("Successfully retrieved category page {@page}", page);
 
             return Ok(response);
         }
@@ -33,8 +39,12 @@ namespace ProductService.API.Controllers
         [HttpGet("{name}")]
         public async Task<IActionResult> GetCategoryByName([FromRoute] string name, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Attempting to retrieve category data by @{name}", name);
+
             var query = new GetCategoryByNameQuery(name);
             var response = await _mediator.Send(query, cancellationToken);
+
+            _logger.LogInformation("Successfully retrieved category data by @{name}", name);
 
             return Ok(response);
         }
@@ -43,8 +53,12 @@ namespace ProductService.API.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateCategory([FromBody] CategoryRequestDTO dto, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Attempting to create category with @{name}", dto.Name);
+
             var command = new CreateCategoryCommand(dto);
             var response = await _mediator.Send(command, cancellationToken);
+
+            _logger.LogInformation("Successfully created category with @{name}", dto.Name);
 
             return Ok(response);
         }
@@ -53,8 +67,12 @@ namespace ProductService.API.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateCategory([FromRoute] Guid id, [FromBody] CategoryRequestDTO dto, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Attempting to update category with @{name}", dto.Name);
+
             var command = new UpdateCategoryCommand(id, dto);
             var response = await _mediator.Send(command, cancellationToken);
+
+            _logger.LogInformation("Successfully updated category with @{name}", dto.Name);
 
             return Ok(response);
         }
@@ -62,8 +80,12 @@ namespace ProductService.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory([FromRoute] Guid id, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Attempting to delete category with  @{id}", id);
+
             var command = new DeleteCategoryCommand(id);
             await _mediator.Send(command, cancellationToken);
+
+            _logger.LogInformation("Successfully deleted category with  @{id}", id);
 
             return Ok(new { Message = "Category deleted successfully." });
         }

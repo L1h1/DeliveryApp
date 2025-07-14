@@ -58,6 +58,8 @@ namespace UserService.API.Middleware
             var response = new { error = ex.Message };
             var jsonResponse = JsonConvert.SerializeObject(response);
 
+            _logger.LogWarning("Request @{path} finished with code @{statusCode} and message @{message}", context.Request.Path, statusCode, ex.Message);
+
             await context.Response.WriteAsync(jsonResponse);
         }
     }

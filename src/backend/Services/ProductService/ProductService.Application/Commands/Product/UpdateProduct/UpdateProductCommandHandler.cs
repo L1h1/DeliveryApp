@@ -1,5 +1,6 @@
-﻿using AutoMapper;
+using AutoMapper;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Caching.Distributed;
 using ProductService.Application.DTOs.Response;
 using ProductService.Application.Exceptions;
@@ -13,6 +14,7 @@ namespace ProductService.Application.Commands.Product.UpdateProduct
         private readonly IProductRepository _productRepository;
         private readonly ICategoryRepository _categoryRepository;
         private readonly IManufacturerRepository _manufacturerRepository;
+        private readonly ILogger<UpdateProductCommandHandler> _logger;
         private readonly IDistributedCache _distributedCache;
 
         public UpdateProductCommandHandler(
@@ -20,17 +22,21 @@ namespace ProductService.Application.Commands.Product.UpdateProduct
             IProductRepository productRepository,
             ICategoryRepository categoryRepository,
             IManufacturerRepository manufacturerRepository,
+            ILogger<UpdateProductCommandHandler> logger,
             IDistributedCache distributedCache)
         {
             _mapper = mapper;
             _productRepository = productRepository;
             _categoryRepository = categoryRepository;
             _manufacturerRepository = manufacturerRepository;
+            _logger = logger;
             _distributedCache = distributedCache;
         }
 
         public async Task<ProductResponseDTO> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Updating product @{id}", request.Id);
+
             var cacheKey = $"product:{request.Id}";
 
             var existingProduct = await _productRepository.GetByIdAsync(request.Id, cancellationToken);
@@ -47,6 +53,8 @@ namespace ProductService.Application.Commands.Product.UpdateProduct
 
             existingProduct = await _productRepository.UpdateAsync(existingProduct, cancellationToken);
 
+            _logger.LogInformation("Successfully updated product @{id}", request.Id);
+            
             await _distributedCache.RemoveAsync(cacheKey, cancellationToken);
 
             return _mapper.Map<ProductResponseDTO>(existingProduct);
@@ -56,6 +64,8 @@ namespace ProductService.Application.Commands.Product.UpdateProduct
         {
             if (product.ManufacturerId != newManufacturerId)
             {
+                _logger.LogInformation("Updating product @{id} manufacturer", product.Id);
+
                 var manufacturer = await _manufacturerRepository.GetByIdAsync(newManufacturerId, cancellationToken);
 
                 if (manufacturer is null)
@@ -64,6 +74,8 @@ namespace ProductService.Application.Commands.Product.UpdateProduct
                 }
 
                 product.Manufacturer = manufacturer;
+
+                _logger.LogInformation("Successfully updated product @{id} manufacturer", product.Id);
             }
         }
 
@@ -74,6 +86,8 @@ namespace ProductService.Application.Commands.Product.UpdateProduct
 
             if (!currentCategoryIds.SetEquals(requestedIdsSet))
             {
+                _logger.LogInformation("Updating product @{id} categories", product.Id);
+
                 var categories = await _categoryRepository.ListByIdsAsync(requestedCategoryIds, cancellationToken);
 
                 if (categories.Count < requestedCategoryIds.Count)
@@ -82,6 +96,8 @@ namespace ProductService.Application.Commands.Product.UpdateProduct
                 }
 
                 product.Categories = categories.ToList();
+
+                _logger.LogInformation("Successfully updated product @{id} categories", product.Id);
             }
         }
     }

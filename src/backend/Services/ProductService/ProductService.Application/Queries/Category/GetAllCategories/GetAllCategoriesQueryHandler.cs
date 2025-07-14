@@ -1,6 +1,7 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using AutoMapper;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Caching.Distributed;
 using ProductService.Application.DTOs.Response;
 using ProductService.Application.Exceptions;
@@ -12,17 +13,22 @@ namespace ProductService.Application.Queries.Category.GetAllCategories
     {
         private readonly IMapper _mapper;
         private readonly ICategoryRepository _categoryRepository;
+        private readonly ILogger<GetAllCategoriesQueryHandler> _logger;
         private readonly IDistributedCache _distributedCache;
 
-        public GetAllCategoriesQueryHandler(IMapper mapper, ICategoryRepository categoryRepository, IDistributedCache distributedCache)
+        public GetAllCategoriesQueryHandler(IMapper mapper, ICategoryRepository categoryRepository, ILogger<GetAllCategoriesQueryHandler> logger, IDistributedCache distributedCache)
         {
             _mapper = mapper;
             _categoryRepository = categoryRepository;
+            _logger = logger;
             _distributedCache = distributedCache;
+        
         }
 
         public async Task<PaginatedResponseDTO<CategoryResponseDTO>> Handle(GetAllCategoriesQuery request, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Retrieving category list page @{page}", request.Dto);
+            
             var cacheKey = $"categories:{request.Dto.PageNumber}:{request.Dto.PageSize}";
             var cachedData = await _distributedCache.GetStringAsync(cacheKey, cancellationToken);
 
@@ -38,7 +44,10 @@ namespace ProductService.Application.Queries.Category.GetAllCategories
                 throw new NotFoundException("No categories found");
             }
 
+            _logger.LogInformation("Successfully retrieved category list page @{page}", request.Dto);
+
             var result = new PaginatedResponseDTO<CategoryResponseDTO>
+
             {
                 Items = _mapper.Map<ICollection<CategoryResponseDTO>>(data.Items),
                 PageNumber = data.PageNumber,
