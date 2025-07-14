@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using UserService.BLL.DTOs.Request;
 using UserService.BLL.DTOs.Response;
 using UserService.BLL.Exceptions;
@@ -16,22 +17,27 @@ namespace UserService.BLL.Services
         private readonly SignInManager<User> _signInManager;
         private readonly ITokenService _tokenService;
         private readonly IMapper _mapper;
+        private readonly ILogger<AuthService> _logger;
 
         public AuthService(
             IUserRepository userRepository,
             SignInManager<User> signInManager,
             ITokenService tokenService,
-            IMapper mapper)
+            IMapper mapper,
+            ILogger<AuthService> logger)
         {
             _userRepository = userRepository;
             _signInManager = signInManager;
             _tokenService = tokenService;
             _mapper = mapper;
+            _logger = logger;
         }
 
         public async Task<UserResponseDTO> LoginUserAsync(LoginRequestDTO loginDTO, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
+
+            _logger.LogInformation("Searching for user: @{email}", loginDTO.Email);
 
             var user = await _userRepository.GetUserByEmailAsync(loginDTO.Email, cancellationToken);
 
@@ -41,7 +47,12 @@ namespace UserService.BLL.Services
             }
 
             var result = _mapper.Map<UserResponseDTO>(user);
+
+            _logger.LogInformation("Generating access token for user: @{email}", user.Email);
+
             result.AccessToken = await _tokenService.GenerateAccessTokenAsync(user, cancellationToken);
+
+            _logger.LogInformation("Successfully authenticated user: @{email}", user.Email);
 
             return result;
         }
@@ -50,8 +61,14 @@ namespace UserService.BLL.Services
         {
             cancellationToken.ThrowIfCancellationRequested();
 
+            _logger.LogInformation("Retrieving user information from token");
+
             var principal = _tokenService.GetPrincipalFromToken(tokenDTO.AccessToken);
-            var user = await _userRepository.GetUserByEmailAsync(principal.FindFirst(ClaimTypes.Email)!.Value, cancellationToken);
+            var email = principal.FindFirst(ClaimTypes.Email)!.Value;
+
+            _logger.LogInformation("Searching for user: @{email}", email);
+
+            var user = await _userRepository.GetUserByEmailAsync(email, cancellationToken);
 
             if (user is null || user.RefreshToken != tokenDTO.RefreshToken)
             {
@@ -62,11 +79,15 @@ namespace UserService.BLL.Services
                 throw new TokenExpiredException("Refresh token expired.");
             }
 
+            _logger.LogInformation("Processing token refresh for user: @{email}", email);
+
             (user.RefreshToken, user.ExpiresOn) = _tokenService.GenerateRefreshToken();
             await _userRepository.UpdateUserAsync(user, cancellationToken);
 
             var result = _mapper.Map<UserResponseDTO>(user);
             result.AccessToken = await _tokenService.GenerateAccessTokenAsync(user, cancellationToken);
+
+            _logger.LogInformation("Successfully updated tokens for user: @{email}", email);
 
             return result;
         }
@@ -82,6 +103,8 @@ namespace UserService.BLL.Services
                 throw new BadRequestException("User with given email already exists.");
             }
 
+            _logger.LogInformation("Registering new user: @{email}", userDTO.Email);
+
             var user = _mapper.Map<User>(userDTO);
             var result = await _userRepository.AddUserAsync(user, userDTO.Password, cancellationToken);
 
@@ -90,7 +113,11 @@ namespace UserService.BLL.Services
                 throw new BadRequestException(string.Join('\n', result.Errors.Select(e => e.Description)));
             }
 
+            _logger.LogInformation("Assigning default role to user: @{}", user.Email);
+
             await _userRepository.AssignRoleAsync(user, "Client", cancellationToken);
+
+            _logger.LogInformation("Initializing access token generation for user: @{email}", user.Email);
 
             var accessToken = await _tokenService.GenerateAccessTokenAsync(user, cancellationToken);
             (user.RefreshToken, user.ExpiresOn) = _tokenService.GenerateRefreshToken();
@@ -98,6 +125,8 @@ namespace UserService.BLL.Services
 
             var response = _mapper.Map<UserResponseDTO>(user);
             response.AccessToken = accessToken;
+
+            _logger.LogInformation("Successfully registered new user: @{email}", user.Email);
 
             return response;
         }

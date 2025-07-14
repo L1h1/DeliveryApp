@@ -8,6 +8,7 @@ using ProductService.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
+builder.AddSerilogLogging();
 
 // Add services to the container.
 builder.Services

@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using UserService.BLL.Interfaces;
@@ -15,16 +16,20 @@ namespace UserService.BLL.Services
     {
         private readonly JwtOptions _jwtOptions;
         private readonly IUserRepository _userRepository;
+        private readonly ILogger<TokenService> _logger;
 
-        public TokenService(IOptions<JwtOptions> jwtOptions, IUserRepository userRepository)
+        public TokenService(IOptions<JwtOptions> jwtOptions, IUserRepository userRepository, ILogger<TokenService> logger)
         {
             _jwtOptions = jwtOptions.Value;
             _userRepository = userRepository;
+            _logger = logger;
         }
 
         public async Task<string> GenerateAccessTokenAsync(User user, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
+
+            _logger.LogInformation("Generating access token for user: @{email}", user.Email);
 
             var issuer = _jwtOptions.Issuer;
             var audience = _jwtOptions.Audience;
@@ -59,20 +64,28 @@ namespace UserService.BLL.Services
             var securityToken = tokenHandler.CreateToken(tokenDescriptor);
             var accessToken = tokenHandler.WriteToken(securityToken);
 
+            _logger.LogInformation("Successfully generated access token for user: @{email}", user.Email);
+
             return accessToken;
         }
 
         public (string refreshToken, DateTime expirityDate) GenerateRefreshToken()
         {
+            _logger.LogInformation("Generating refresh token");
+
             var tokenLifetime = _jwtOptions.RefreshTokenExpirationDays;
             var refreshToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
             var expirityDate = DateTime.UtcNow.AddDays(tokenLifetime);
+
+            _logger.LogInformation("Successfully generated refresh token");
 
             return (refreshToken, expirityDate);
         }
 
         public ClaimsPrincipal GetPrincipalFromToken(string token)
         {
+            _logger.LogInformation("Attempting to validate and extract data from access token");
+
             var tokenHandler = new JwtSecurityTokenHandler();
             var validationParameters = new TokenValidationParameters
             {
@@ -86,6 +99,9 @@ namespace UserService.BLL.Services
             };
 
             var principal = tokenHandler.ValidateToken(token, validationParameters, out _);
+
+            _logger.LogInformation("Successfully extracted data from access token");
+
             return principal;
         }
     }

@@ -1,5 +1,6 @@
-﻿using AutoMapper;
+using AutoMapper;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Caching.Distributed;
 using OrderService.Application.DTOs.Response;
 using OrderService.Application.Exceptions;
@@ -16,6 +17,7 @@ namespace OrderService.Application.Commands.CreateOrder
         private readonly IProductService _productService;
         private readonly IUserService _userService;
         private readonly IOrderFlowService _orderFlowService;
+        private readonly ILogger<CreateOrderCommandHandler> _logger;
         private readonly IDistributedCache _distributedCache;
 
         public CreateOrderCommandHandler(
@@ -24,6 +26,7 @@ namespace OrderService.Application.Commands.CreateOrder
             IProductService productService,
             IUserService userService,
             IDistributedCache distributedCache,
+            ILogger<CreateOrderCommandHandler> logger,
             IOrderFlowService orderFlowService)
         {
             _mapper = mapper;
@@ -31,11 +34,14 @@ namespace OrderService.Application.Commands.CreateOrder
             _productService = productService;
             _userService = userService;
             _distributedCache = distributedCache;
+            _logger = logger;
             _orderFlowService = orderFlowService;
         }
 
         public async Task<OrderResponseDTO> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Creating order for client @{id}", request.RequestDTO.ClientId);
+
             var userEmail = await _userService.GetByIdAsync(request.RequestDTO.ClientId.ToString(), cancellationToken);
 
             if (userEmail is null)
@@ -72,6 +78,8 @@ namespace OrderService.Application.Commands.CreateOrder
 
             await _orderFlowService.ProcessOrderCreation(order, userEmail, cancellationToken);
 
+            _logger.LogInformation("Successfully created order @{orderId} for client @{clientId}", order.Id, order.ClientId);
+            
             await _distributedCache.RemoveAsync($"orders:client:{order.ClientId}");
 
             return _mapper.Map<OrderResponseDTO>(order);

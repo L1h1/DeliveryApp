@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MimeKit;
 using MimeKit.Text;
@@ -13,10 +14,12 @@ namespace UserService.BLL.Services
     public class EmailService : IEmailService
     {
         private readonly EmailOptions _emailOptions;
+        private readonly ILogger<EmailService> _logger;
 
-        public EmailService(IOptions<EmailOptions> emailOptions)
+        public EmailService(IOptions<EmailOptions> emailOptions, ILogger<EmailService> logger)
         {
             _emailOptions = emailOptions.Value;
+            _logger = logger;
         }
 
         public async Task SendChangeEmailTokenAsync(string userId, string email, string token, CancellationToken cancellationToken = default)
@@ -35,6 +38,8 @@ namespace UserService.BLL.Services
 
         public async Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
+            _logger.LogInformation("Sending email to: @{email}", email);
+
             using var client = new SmtpClient();
             client.AuthenticationMechanisms.Remove("NTLM");
             var host = _emailOptions.Host;
@@ -55,6 +60,8 @@ namespace UserService.BLL.Services
             await client.AuthenticateAsync(username, password);
             await client.SendAsync(message);
             await client.DisconnectAsync(true);
+
+            _logger.LogInformation("Email successfully sent to: @{email}", email);
         }
 
         public async Task SendResetPasswordEmailAsync(string email, string token, CancellationToken cancellationToken = default)

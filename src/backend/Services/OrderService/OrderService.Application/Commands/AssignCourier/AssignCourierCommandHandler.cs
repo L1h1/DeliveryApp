@@ -1,4 +1,5 @@
-﻿using MediatR;
+using MediatR;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Caching.Distributed;
 using OrderService.Application.Exceptions;
 using OrderService.Application.Interfaces.Repositories;
@@ -11,16 +12,20 @@ namespace OrderService.Application.Commands.AssignCourier
         private readonly IOrderRepository _orderRepository;
         private readonly IUserService _userService;
         private readonly IDistributedCache _distributedCache;
+        private readonly ILogger<AssignCourierCommandHandler> _logger;
 
-        public AssignCourierCommandHandler(IOrderRepository orderRepository, IUserService userService, IDistributedCache distributedCache)
+        public AssignCourierCommandHandler(IOrderRepository orderRepository, IUserService userService, ILogger<AssignCourierCommandHandler> logger, IDistributedCache distributedCache)
         {
             _orderRepository = orderRepository;
             _userService = userService;
+            _logger = logger;
             _distributedCache = distributedCache;
         }
 
         public async Task<Unit> Handle(AssignCourierCommand request, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Assigning courier @{courierId} to order @{orderId}", request.CourierId, request.OrderId);
+
             var existingUser = await _userService.GetByIdAsync(request.CourierId.ToString(), cancellationToken);
 
             if (existingUser is null)
@@ -41,6 +46,8 @@ namespace OrderService.Application.Commands.AssignCourier
             await _orderRepository.UpdateAsync(order, cancellationToken);
             await _distributedCache.RemoveAsync($"order:{request.OrderId}");
             await _distributedCache.RemoveAsync($"orders:client:{order.ClientId}");
+
+            _logger.LogInformation("Successfully assigned courier @{courierId} to order @{orderId}", request.CourierId, request.OrderId);
 
             return Unit.Value;
         }

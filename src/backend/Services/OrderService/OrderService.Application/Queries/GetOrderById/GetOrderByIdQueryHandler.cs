@@ -1,6 +1,7 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using AutoMapper;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Caching.Distributed;
 using OrderService.Application.DTOs.Response;
 using OrderService.Application.Exceptions;
@@ -12,17 +13,21 @@ namespace OrderService.Application.Queries.GetOrderById
     {
         private readonly IMapper _mapper;
         private readonly IOrderRepository _orderRepository;
+        private readonly ILogger<GetOrderByIdQueryHandler> _logger;
         private readonly IDistributedCache _distributedCache;
-
-        public GetOrderByIdQueryHandler(IOrderRepository orderRepository, IMapper mapper, IDistributedCache distributedCache)
+        
+        public GetOrderByIdQueryHandler(IOrderRepository orderRepository, IMapper mapper, ILogger<GetOrderByIdQueryHandler> logger, IDistributedCache distributedCache)
         {
             _mapper = mapper;
             _orderRepository = orderRepository;
+            _logger = logger;
             _distributedCache = distributedCache;
         }
 
         public async Task<DetailedOrderResponseDTO> Handle(GetOrderByIdQuery request, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Retrieving order @{id}", request.OrderId);
+
             var cacheKey = $"order:{request.OrderId}";
             var cached = await _distributedCache.GetStringAsync(cacheKey, cancellationToken);
 
@@ -38,7 +43,7 @@ namespace OrderService.Application.Queries.GetOrderById
                 throw new NotFoundException("Order with given id not found.");
             }
 
-            var result = _mapper.Map<DetailedOrderResponseDTO>(response);
+            _logger.LogInformation("Successfully retrieved order @{id}", request.OrderId);
 
             await _distributedCache.SetStringAsync(
                 cacheKey,
@@ -47,6 +52,8 @@ namespace OrderService.Application.Queries.GetOrderById
                 {
                     AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10),
                 }, cancellationToken);
+
+            var result = _mapper.Map<DetailedOrderResponseDTO>(response);
 
             return result;
         }

@@ -1,6 +1,7 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using AutoMapper;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Caching.Distributed;
 using OrderService.Application.DTOs.Response;
 using OrderService.Application.Exceptions;
@@ -15,17 +16,26 @@ namespace OrderService.Application.Queries.GetOrdersByClientId
         private readonly IUserService _userService;
         private readonly IOrderRepository _orderRepository;
         private readonly IDistributedCache _distributedCache;
+        private readonly ILogger<GetOrdersByClientIdQueryHandler> _logger;
 
-        public GetOrdersByClientIdQueryHandler(IMapper mapper, IUserService userService, IOrderRepository orderRepository, IDistributedCache distributedCache)
+        public GetOrdersByClientIdQueryHandler(
+            IMapper mapper,
+            IUserService userService,
+            IOrderRepository orderRepository,
+            ILogger<GetOrdersByClientIdQueryHandler> logger,
+            IDistributedCache distributedCache)
         {
             _mapper = mapper;
             _userService = userService;
             _orderRepository = orderRepository;
+            _logger = logger;
             _distributedCache = distributedCache;
         }
 
         public async Task<List<OrderResponseDTO>> Handle(GetOrdersByClientIdQuery request, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Retrieving orders for client @{id}", request.Id);
+
             var cacheKey = $"orders:client:{request.Id}";
             var cached = await _distributedCache.GetStringAsync(cacheKey, cancellationToken);
 
@@ -47,7 +57,8 @@ namespace OrderService.Application.Queries.GetOrdersByClientId
             {
                 throw new NotFoundException("No orders found.");
             }
-
+           _logger.LogInformation("Successfully retrieved orders for client @{id}", request.Id);
+            
             var result = _mapper.Map<List<OrderResponseDTO>>(response);
 
             await _distributedCache.SetStringAsync(
@@ -57,7 +68,7 @@ namespace OrderService.Application.Queries.GetOrdersByClientId
                 {
                     AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10),
                 }, cancellationToken);
-
+            
             return result;
         }
     }
