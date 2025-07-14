@@ -22,6 +22,7 @@ namespace UserService.Tests.UnitTests.Services
         private readonly Mock<SignInManager<User>> _signInManagerMock;
         private readonly Mock<ITokenService> _tokenServiceMock;
         private readonly Mock<IMapper> _mapperMock;
+        private readonly Mock<ILogger<AuthService>> _loggerMock;
         private readonly AuthService _service;
 
         public AuthServiceTests()
@@ -52,12 +53,14 @@ namespace UserService.Tests.UnitTests.Services
 
             _tokenServiceMock = new();
             _mapperMock = new();
+            _loggerMock = new();
 
             _service = new(
                 _userRepositoryMock.Object,
                 _signInManagerMock.Object,
                 _tokenServiceMock.Object,
-                _mapperMock.Object);
+                _mapperMock.Object,
+                 _loggerMock.Object);
         }
 
         [Fact]

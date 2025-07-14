@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Moq;
@@ -15,6 +16,7 @@ namespace UserService.Tests.UnitTests.Services
     {
         private readonly Mock<IUserRepository> _userRepositoryMock;
         private readonly Mock<IOptions<JwtOptions>> _jwtOptionsMock;
+        private readonly Mock<ILogger<TokenService>> _loggerMock;
         private readonly TokenService _service;
 
         private readonly JwtOptions _testJwtOptions = new JwtOptions
@@ -30,9 +32,10 @@ namespace UserService.Tests.UnitTests.Services
         {
             _userRepositoryMock = new();
             _jwtOptionsMock = new();
+            _loggerMock = new();
             _jwtOptionsMock.Setup(m => m.Value).Returns(_testJwtOptions);
 
-            _service = new(_jwtOptionsMock.Object, _userRepositoryMock.Object);
+            _service = new(_jwtOptionsMock.Object, _userRepositoryMock.Object, _loggerMock.Object);
         }
 
         [Fact]
@@ -110,7 +113,7 @@ namespace UserService.Tests.UnitTests.Services
             
             mockWrongIssuerOptions.Setup(m => m.Value).Returns(wrongIssuerOptions);
             
-            var tokenServiceWithWrongIssuer = new TokenService(mockWrongIssuerOptions.Object, _userRepositoryMock.Object);
+            var tokenServiceWithWrongIssuer = new TokenService(mockWrongIssuerOptions.Object, _userRepositoryMock.Object, _loggerMock.Object);
             var tokenWithWrongIssuer = await tokenServiceWithWrongIssuer.GenerateAccessTokenAsync(testUser, token);
 
             // Act

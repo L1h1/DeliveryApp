@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Logging;
 using Moq;
 using OrderService.Application.Commands.DeleteOrder;
 using OrderService.Application.Exceptions;
@@ -12,15 +13,18 @@ namespace OrderService.Tests.UnitTests.Commands
     {
         private readonly Mock<IOrderRepository> _orderRepositoryMock;
         private readonly Mock<IDistributedCache> _distributedCacheMock;
+        private readonly Mock<ILogger<DeleteOrderCommandHandler>> _loggerMock;
         private readonly DeleteOrderCommandHandler _deleteOrderCommandHandler;
 
         public DeleteOrderCommandHandlerTests()
         {
             _orderRepositoryMock = new Mock<IOrderRepository>();
             _distributedCacheMock = new Mock<IDistributedCache>();
+            _loggerMock = new();
 
             _deleteOrderCommandHandler = new(
                 _orderRepositoryMock.Object,
+                _loggerMock.Object,
                 _distributedCacheMock.Object);
         }
 

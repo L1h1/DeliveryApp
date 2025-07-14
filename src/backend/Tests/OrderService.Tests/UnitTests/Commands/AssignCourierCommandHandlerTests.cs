@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Logging;
 using Moq;
 using OrderService.Application.Commands.AssignCourier;
 using OrderService.Application.Exceptions;
@@ -14,6 +15,7 @@ namespace OrderService.Tests.UnitTests.Commands
         private readonly Mock<IOrderRepository> _orderRepositoryMock;
         private readonly Mock<IUserService> _userServiceMock;
         private readonly Mock<IDistributedCache> _distributedCacheMock;
+        private readonly Mock<ILogger<AssignCourierCommandHandler>> _loggerMock;
         private readonly AssignCourierCommandHandler _assignCourierCommandHandler;
 
         public AssignCourierCommandHandlerTests()
@@ -21,10 +23,12 @@ namespace OrderService.Tests.UnitTests.Commands
             _orderRepositoryMock = new Mock<IOrderRepository>();
             _userServiceMock = new Mock<IUserService>();
             _distributedCacheMock = new Mock<IDistributedCache>();
+            _loggerMock = new();
 
             _assignCourierCommandHandler = new(
                 _orderRepositoryMock.Object,
                 _userServiceMock.Object,
+                _loggerMock.Object,
                 _distributedCacheMock.Object);
         }
 

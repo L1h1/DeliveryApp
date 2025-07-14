@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FluentAssertions;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Logging;
 using Moq;
 using OrderService.Application.Commands.CreateOrder;
 using OrderService.Application.DTOs.Response;
@@ -19,6 +20,7 @@ namespace OrderService.Tests.UnitTests.Commands
         private readonly Mock<IUserService> _userServiceMock;
         private readonly Mock<IOrderFlowService> _orderFlowServiceMock;
         private readonly Mock<IDistributedCache> _distributedCacheMock;
+        private readonly Mock<ILogger<CreateOrderCommandHandler>> _loggerMock;
         private readonly CreateOrderCommandHandler _handler;
 
         public CreateOrderCommandHandlerTests()
@@ -34,6 +36,7 @@ namespace OrderService.Tests.UnitTests.Commands
             _productServiceMock = new();
             _userServiceMock = new();
             _distributedCacheMock = new();
+            _loggerMock = new();
 
             _handler = new(
                 _mapper,
@@ -41,6 +44,7 @@ namespace OrderService.Tests.UnitTests.Commands
                 _productServiceMock.Object,
                 _userServiceMock.Object,
                 _distributedCacheMock.Object,
+                _loggerMock.Object,
                 _orderFlowServiceMock.Object);
         }
 

@@ -9,6 +9,8 @@ using OrderService.Application.Queries.GetOrderById;
 using System.Text;
 using OrderService.Domain.Entities;
 using OrderService.Application.Exceptions;
+using Castle.Core.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace OrderService.Tests.UnitTests.Queries
 {
@@ -17,12 +19,14 @@ namespace OrderService.Tests.UnitTests.Queries
         private readonly Mock<IOrderRepository> _orderRepositoryMock;
         private readonly Mock<IDistributedCache> _distributedCacheMock;
         private readonly IMapper _mapper;
+        private readonly Mock<ILogger<GetOrderByIdQueryHandler>> _loggerMock;
         private readonly GetOrderByIdQueryHandler _getOrderByIdQueryHandler;
 
         public GetOrderByIdQueryHandlerTests()
         {
             _orderRepositoryMock = new();
             _distributedCacheMock = new();
+            _loggerMock = new();
             
             var config = new MapperConfiguration(cfg =>
             {
@@ -33,6 +37,7 @@ namespace OrderService.Tests.UnitTests.Queries
             _getOrderByIdQueryHandler = new(
                 _orderRepositoryMock.Object,
                 _mapper,
+                _loggerMock.Object,
                 _distributedCacheMock.Object);
         }
 

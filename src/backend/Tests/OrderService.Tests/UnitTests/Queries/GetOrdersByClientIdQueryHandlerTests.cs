@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FluentAssertions;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Logging;
 using Moq;
 using OrderService.Application.DTOs.Response;
 using OrderService.Application.Exceptions;
@@ -20,12 +21,14 @@ namespace OrderService.Tests.UnitTests.Queries
         private readonly Mock<IOrderRepository> _orderRepositoryMock;
         private readonly Mock<IDistributedCache> _distributedCacheMock;
         private IMapper _mapper;
+        private readonly Mock<ILogger<GetOrdersByClientIdQueryHandler>> _loggerMock;
         private readonly GetOrdersByClientIdQueryHandler _handler;
 
         public GetOrdersByClientIdQueryHandlerTests()
         {
             _userServiceMock = new();
             _orderRepositoryMock = new();
+            _loggerMock = new();
             _distributedCacheMock = new();
 
             var config = new MapperConfiguration(cfg =>
@@ -38,6 +41,7 @@ namespace OrderService.Tests.UnitTests.Queries
                 _mapper,
                 _userServiceMock.Object,
                 _orderRepositoryMock.Object,
+                _loggerMock.Object,
                 _distributedCacheMock.Object);
         }
 

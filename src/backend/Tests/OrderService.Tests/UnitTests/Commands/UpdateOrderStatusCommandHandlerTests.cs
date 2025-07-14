@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Logging;
 using Moq;
 using OrderService.Application.Commands.UpdateOrderStatus;
 using OrderService.Application.Exceptions;
@@ -12,15 +13,18 @@ namespace OrderService.Tests.UnitTests.Commands
     {
         private readonly Mock<IOrderRepository> _orderRepositoryMock;
         private readonly Mock<IDistributedCache> _distributedCacheMock;
+        private readonly Mock<ILogger<UpdateOrderStatusCommandHandler>> _loggerMock;
         private readonly UpdateOrderStatusCommandHandler _updateOrderStatusCommandHandler;
 
         public UpdateOrderStatusCommandHandlerTests()
         {
             _orderRepositoryMock = new Mock<IOrderRepository>();
             _distributedCacheMock = new Mock<IDistributedCache>();
+            _loggerMock = new();
 
             _updateOrderStatusCommandHandler = new(
                 _orderRepositoryMock.Object,
+                _loggerMock.Object,
                 _distributedCacheMock.Object);
         }
 

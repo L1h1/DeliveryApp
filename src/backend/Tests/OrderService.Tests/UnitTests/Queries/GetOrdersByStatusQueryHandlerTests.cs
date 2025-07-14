@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using OrderService.Application.DTOs.Response;
 using OrderService.Application.Exceptions;
@@ -15,10 +16,12 @@ namespace OrderService.Tests.UnitTests.Queries
         private readonly IMapper _mapper;
         private readonly Mock<IOrderRepository> _orderRepositoryMock;
         private readonly GetOrdersByStatusQueryHandler _handler;
+        private readonly Mock<ILogger<GetOrdersByStatusQueryHandler>> _loggerMock;
 
         public GetOrdersByStatusQueryHandlerTests()
         {
             _orderRepositoryMock = new();
+            _loggerMock = new();
 
             var config = new MapperConfiguration(cfg =>
             {
@@ -26,7 +29,7 @@ namespace OrderService.Tests.UnitTests.Queries
             });
             _mapper = new Mapper(config);
 
-            _handler = new(_mapper, _orderRepositoryMock.Object);
+            _handler = new(_mapper, _orderRepositoryMock.Object, _loggerMock.Object);
         }
 
         [Fact]
