@@ -1,4 +1,5 @@
 using Hangfire;
+using JwtAuthentication;
 using UserService.API;
 using UserService.API.Filters;
 using UserService.API.Middleware;
@@ -16,8 +17,9 @@ builder.Services
     .AddDataAccess(builder.Configuration)
     .AddOptions(builder.Configuration)
     .AddIdentity()
-    .AddJWTAuth()
-    .AddRabbitMq();
+    .AddJwtAuthentication(builder.Configuration)
+    .AddRabbitMq()
+    .AddRedisCaching(builder.Configuration);
 
 builder.Services.AddControllers();
 
@@ -38,7 +40,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();

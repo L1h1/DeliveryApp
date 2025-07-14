@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OrderService.Application.Commands.AssignCourier;
 using OrderService.Application.Commands.CreateOrder;
@@ -27,6 +28,7 @@ namespace OrderService.API.Controllers
         }
 
         [HttpGet("{orderId}")]
+        [Authorize]
         public async Task<IActionResult> GetOrderById([FromRoute] Guid orderId, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Attempting to retrieve order @{id}", orderId);
@@ -40,6 +42,7 @@ namespace OrderService.API.Controllers
         }
 
         [HttpGet("client/{clientId}")]
+        [Authorize(Roles = "Admin, Courier")]
         public async Task<IActionResult> GetOrdersByClientId([FromRoute] Guid clientId, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Attempting to retrieve orders for client @{id}", clientId);
@@ -53,6 +56,7 @@ namespace OrderService.API.Controllers
         }
 
         [HttpGet("courier/{courierId}")]
+        [Authorize(Roles = "Admin, Courier")]
         public async Task<IActionResult> GetActiveOrdersByCourierId([FromRoute] Guid courierId, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Attempting to retrieve orders for courier @{id}", courierId);
@@ -66,6 +70,7 @@ namespace OrderService.API.Controllers
         }
 
         [HttpGet("status/{status}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetOrdersByStatus([FromRoute] OrderStatus status, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Attempting to get orders with @{status}", status);
@@ -79,6 +84,7 @@ namespace OrderService.API.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> CreateOrder([FromBody] OrderRequestDTO requestDTO, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Attempting to create order for client @{id}", requestDTO.ClientId);
@@ -91,7 +97,8 @@ namespace OrderService.API.Controllers
             return Ok(response);
         }
 
-        [HttpPatch("{orderId}/courier")]
+        [HttpPatch("orders/{orderId}/courier")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AssignCourierAsync([FromRoute] Guid orderId, [FromBody] Guid courierId, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Attempting to assign courier @{id} to order @{id}", courierId, orderId);
@@ -104,7 +111,8 @@ namespace OrderService.API.Controllers
             return Ok(new { Message = "Courier assigned." });
         }
 
-        [HttpPatch("{orderId}/status")]
+        [HttpPatch("orders/{orderId}/status")]
+        [Authorize(Roles = "Admin, Courier")]
         public async Task<IActionResult> UpdateOrderStatus([FromRoute] Guid orderId, [FromBody] OrderStatus status, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Attempting to update order @{id} with status @{status}", orderId, status);
@@ -118,6 +126,7 @@ namespace OrderService.API.Controllers
         }
 
         [HttpDelete("{orderId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteOrderCommand([FromRoute] Guid orderId, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Attempting to delete order @{id}", orderId);

@@ -1,3 +1,4 @@
+using JwtAuthentication;
 using Microsoft.Extensions.FileProviders;
 using ProductService.API;
 using ProductService.API.Middleware;
@@ -13,13 +14,16 @@ builder.AddSerilogLogging();
 builder.Services
     .AddApplication()
     .AddOptions(builder.Configuration)
-    .AddDataAccess(builder.Configuration);
+    .AddDataAccess(builder.Configuration)
+    .AddRedisCaching(builder.Configuration)
+    .AddOptions(builder.Configuration)
+    .AddJwtAuthentication(builder.Configuration);
 
 builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwagger();
 
 var app = builder.Build();
 
@@ -41,7 +45,7 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/Uploads",
 });
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 

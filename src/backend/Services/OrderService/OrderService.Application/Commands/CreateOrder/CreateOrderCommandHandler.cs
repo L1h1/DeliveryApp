@@ -1,6 +1,7 @@
-﻿using AutoMapper;
+using AutoMapper;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Caching.Distributed;
 using OrderService.Application.DTOs.Messaging;
 using OrderService.Application.DTOs.Response;
 using OrderService.Application.Exceptions;
@@ -21,6 +22,7 @@ namespace OrderService.Application.Commands.CreateOrder
         private readonly IBillService _billService;
         private readonly IMessageProducer _messageProducer;
         private readonly ILogger<CreateOrderCommandHandler> _logger;
+        private readonly IDistributedCache _distributedCache;
 
         public CreateOrderCommandHandler(
             IMapper mapper,
@@ -31,6 +33,7 @@ namespace OrderService.Application.Commands.CreateOrder
             IBillService billService,
             IMessageProducer messageProducer,
             ILogger<CreateOrderCommandHandler> logger)
+            IDistributedCache distributedCache)
         {
             _mapper = mapper;
             _orderRepository = orderRepository;
@@ -40,6 +43,7 @@ namespace OrderService.Application.Commands.CreateOrder
             _billService = billService;
             _messageProducer = messageProducer;
             _logger = logger;
+            _distributedCache = distributedCache;
         }
 
         public async Task<OrderResponseDTO> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
@@ -85,6 +89,8 @@ namespace OrderService.Application.Commands.CreateOrder
             _backgroundJobService.CreateJob(() => GenerateAndSendBillAsync(order, userEmail));
 
             _logger.LogInformation("Successfully created order @{orderId} for client @{clientId}", order.Id, order.ClientId);
+            
+            await _distributedCache.RemoveAsync($"orders:client:{order.ClientId}");
 
             return _mapper.Map<OrderResponseDTO>(order);
         }

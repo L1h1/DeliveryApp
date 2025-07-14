@@ -1,4 +1,5 @@
 using Hangfire;
+using JwtAuthentication;
 using OrderService.API;
 using OrderService.API.Filters;
 using OrderService.API.Middleware;
@@ -16,13 +17,15 @@ builder.Services
     .AddGrpc(builder.Configuration)
     .AddDataAccess(builder.Configuration)
     .AddBackgroundJobs(builder.Configuration)
-    .AddRabbitMq();
+    .AddRabbitMq()
+    .AddJwtAuthentication(builder.Configuration)
+    .AddRedisCaching(builder.Configuration);
 
 builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwagger();
 
 var app = builder.Build();
 
@@ -36,7 +39,7 @@ if (app.Environment.IsDevelopment())
     app.RunRecurringJobs();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 

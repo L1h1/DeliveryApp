@@ -19,7 +19,7 @@ namespace UserService.API.Controllers
             _logger = logger;
         }
 
-        [HttpGet("email-confirmation/{email}/{token}")]
+        [HttpGet("email/confirmation/{email}/{token}")]
         public async Task<IActionResult> GenerateEmailConfirmationToken([FromRoute] string email, [FromRoute] string token, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Attempting to generate email confirmation for: @{email}", email);
@@ -29,7 +29,7 @@ namespace UserService.API.Controllers
             return Ok(result);
         }
 
-        [HttpPost("resend-confirmation/{email}")]
+        [HttpPost("email/confirmation/resend/{email}")]
         public async Task<IActionResult> ResendEmailConfirmation([FromRoute] string email, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Attempting to resend email confirmation for: @{email}", email);
@@ -39,7 +39,7 @@ namespace UserService.API.Controllers
             return Ok(new { Message = "Confirmation email sent." });
         }
 
-        [HttpPost("reset-password/{email}")]
+        [HttpPost("password/reset/{email}")]
         public async Task<IActionResult> GeneratePasswordResetCode([FromRoute] string email, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Attempting to generate password reset code for: @{email}", email);
@@ -49,7 +49,7 @@ namespace UserService.API.Controllers
             return Ok(new { Message = "Code sent." });
         }
 
-        [HttpPost("reset-password")]
+        [HttpPost("password/reset")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequestDTO resetDTO, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Attempting to reset password for: @{email}", resetDTO.Email);
@@ -82,7 +82,7 @@ namespace UserService.API.Controllers
             return Ok(result);
         }
 
-        [HttpPost("change-email/{email}")]
+        [HttpPost("email/change/{email}")]
         [Authorize]
         public async Task<IActionResult> RequestEmailChange([FromRoute] string email, CancellationToken cancellationToken)
         {
@@ -94,7 +94,7 @@ namespace UserService.API.Controllers
             return Ok(new { Message = "Confirmation email sent to the new address." });
         }
 
-        [HttpGet("confirm-email-change/{userId}/{email}/{token}")]
+        [HttpGet("email/change/confirmation/{userId}/{email}/{token}")]
         public async Task<IActionResult> ConfirmEmailChange([FromRoute] string userId, [FromRoute] string email, string token, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Attempting to confirm email for: @{email}", email);
@@ -104,7 +104,7 @@ namespace UserService.API.Controllers
             return Ok(result);
         }
 
-        [HttpPost("change-password")]
+        [HttpPost("password/change")]
         [Authorize]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDTO passwordDTO, CancellationToken cancellationToken)
         {

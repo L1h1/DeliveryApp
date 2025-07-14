@@ -1,5 +1,6 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Caching.Distributed;
 using OrderService.Application.Exceptions;
 using OrderService.Application.Interfaces.Repositories;
 
@@ -9,11 +10,13 @@ namespace OrderService.Application.Commands.UpdateOrderStatus
     {
         private readonly IOrderRepository _orderRepository;
         private readonly ILogger<UpdateOrderStatusCommandHandler> _logger;
-
-        public UpdateOrderStatusCommandHandler(IOrderRepository orderRepository, ILogger<UpdateOrderStatusCommandHandler> logger)
+        private readonly IDistributedCache _distributedCache;
+        
+        public UpdateOrderStatusCommandHandler(IOrderRepository orderRepository, ILogger<UpdateOrderStatusCommandHandler> logger, IDistributedCache distributedCache)
         {
             _orderRepository = orderRepository;
             _logger = logger;
+            _distributedCache = distributedCache;
         }
 
         public async Task<Unit> Handle(UpdateOrderStatusCommand request, CancellationToken cancellationToken)
@@ -30,6 +33,8 @@ namespace OrderService.Application.Commands.UpdateOrderStatus
             order.OrderStatus = request.OrderStatus;
 
             await _orderRepository.UpdateAsync(order, cancellationToken);
+            await _distributedCache.RemoveAsync($"order:{request.OrderId}");
+            await _distributedCache.RemoveAsync($"orders:client:{order.ClientId}");
 
             _logger.LogInformation("Successfully updated order @{orderId} with status @{status}", request.OrderId, request.OrderStatus);
 

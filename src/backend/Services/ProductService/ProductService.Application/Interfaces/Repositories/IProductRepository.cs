@@ -6,7 +6,6 @@ namespace ProductService.Application.Interfaces.Repositories
 {
     public interface IProductRepository : IBaseRepository<Product>
     {
-        Task<Product?> GetByIdAsync(Guid productId, CancellationToken cancellationToken = default);
         Task<PaginatedResponseDTO<Product>> ListWithNestedAsync(int pageNumber, int pageSize, Expression<Func<Product, bool>>? filter = null, CancellationToken cancellationToken = default);
     }
 }

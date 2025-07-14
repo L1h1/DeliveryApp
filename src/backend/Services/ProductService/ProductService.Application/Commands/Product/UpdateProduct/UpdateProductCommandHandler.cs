@@ -1,6 +1,7 @@
-﻿using AutoMapper;
+using AutoMapper;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Caching.Distributed;
 using ProductService.Application.DTOs.Response;
 using ProductService.Application.Exceptions;
 using ProductService.Application.Interfaces.Repositories;
@@ -14,24 +15,29 @@ namespace ProductService.Application.Commands.Product.UpdateProduct
         private readonly ICategoryRepository _categoryRepository;
         private readonly IManufacturerRepository _manufacturerRepository;
         private readonly ILogger<UpdateProductCommandHandler> _logger;
+        private readonly IDistributedCache _distributedCache;
 
         public UpdateProductCommandHandler(
             IMapper mapper,
             IProductRepository productRepository,
             ICategoryRepository categoryRepository,
             IManufacturerRepository manufacturerRepository,
-            ILogger<UpdateProductCommandHandler> logger)
+            ILogger<UpdateProductCommandHandler> logger,
+            IDistributedCache distributedCache)
         {
             _mapper = mapper;
             _productRepository = productRepository;
             _categoryRepository = categoryRepository;
             _manufacturerRepository = manufacturerRepository;
             _logger = logger;
+            _distributedCache = distributedCache;
         }
 
         public async Task<ProductResponseDTO> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Updating product @{id}", request.Id);
+
+            var cacheKey = $"product:{request.Id}";
 
             var existingProduct = await _productRepository.GetByIdAsync(request.Id, cancellationToken);
 
@@ -48,6 +54,8 @@ namespace ProductService.Application.Commands.Product.UpdateProduct
             existingProduct = await _productRepository.UpdateAsync(existingProduct, cancellationToken);
 
             _logger.LogInformation("Successfully updated product @{id}", request.Id);
+            
+            await _distributedCache.RemoveAsync(cacheKey, cancellationToken);
 
             return _mapper.Map<ProductResponseDTO>(existingProduct);
         }

@@ -1,6 +1,8 @@
-﻿using AutoMapper;
+using System.Text.Json;
+using AutoMapper;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Caching.Distributed;
 using OrderService.Application.DTOs.Response;
 using OrderService.Application.Exceptions;
 using OrderService.Application.Interfaces.Repositories;
@@ -12,17 +14,27 @@ namespace OrderService.Application.Queries.GetOrderById
         private readonly IMapper _mapper;
         private readonly IOrderRepository _orderRepository;
         private readonly ILogger<GetOrderByIdQueryHandler> _logger;
-
-        public GetOrderByIdQueryHandler(IOrderRepository orderRepository, IMapper mapper, ILogger<GetOrderByIdQueryHandler> logger)
+        private readonly IDistributedCache _distributedCache;
+        
+        public GetOrderByIdQueryHandler(IOrderRepository orderRepository, IMapper mapper, ILogger<GetOrderByIdQueryHandler> logger, IDistributedCache distributedCache)
         {
             _mapper = mapper;
             _orderRepository = orderRepository;
             _logger = logger;
+            _distributedCache = distributedCache;
         }
 
         public async Task<DetailedOrderResponseDTO> Handle(GetOrderByIdQuery request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Retrieving order @{id}", request.OrderId);
+
+            var cacheKey = $"order:{request.OrderId}";
+            var cached = await _distributedCache.GetStringAsync(cacheKey, cancellationToken);
+
+            if (cached is not null)
+            {
+                return JsonSerializer.Deserialize<DetailedOrderResponseDTO>(cached);
+            }
 
             var response = await _orderRepository.GetByIdAsync(request.OrderId, cancellationToken);
 
@@ -33,7 +45,17 @@ namespace OrderService.Application.Queries.GetOrderById
 
             _logger.LogInformation("Successfully retrieved order @{id}", request.OrderId);
 
-            return _mapper.Map<DetailedOrderResponseDTO>(response);
+            await _distributedCache.SetStringAsync(
+                cacheKey,
+                JsonSerializer.Serialize(result),
+                new DistributedCacheEntryOptions()
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10),
+                }, cancellationToken);
+
+            var result = _mapper.Map<DetailedOrderResponseDTO>(response);
+
+            return result;
         }
     }
 }

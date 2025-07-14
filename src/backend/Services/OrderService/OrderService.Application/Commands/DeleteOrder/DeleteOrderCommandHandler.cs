@@ -1,5 +1,6 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Caching.Distributed;
 using OrderService.Application.Exceptions;
 using OrderService.Application.Interfaces.Repositories;
 
@@ -9,13 +10,15 @@ namespace OrderService.Application.Commands.DeleteOrder
     {
         private readonly IOrderRepository _orderRepository;
         private readonly ILogger<DeleteOrderCommandHandler> _logger;
-
-        public DeleteOrderCommandHandler(IOrderRepository orderRepository, ILogger<DeleteOrderCommandHandler> logger)
+        private readonly IDistributedCache _distributedCache;
+        
+        public DeleteOrderCommandHandler(IOrderRepository orderRepository, ILogger<DeleteOrderCommandHandler> logger, IDistributedCache distributedCache)
         {
             _orderRepository = orderRepository;
             _logger = logger;
+            _distributedCache = distributedCache;
         }
-
+       
         public async Task<Unit> Handle(DeleteOrderCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Deleting order @{id}", request.OrderId);
@@ -28,6 +31,8 @@ namespace OrderService.Application.Commands.DeleteOrder
             }
 
             await _orderRepository.DeleteAsync(request.OrderId, cancellationToken);
+            await _distributedCache.RemoveAsync($"order:{request.OrderId}");
+            await _distributedCache.RemoveAsync($"orders:client:{order.ClientId}");
 
             _logger.LogInformation("Successfully deleted order @{id}", request.OrderId);
 

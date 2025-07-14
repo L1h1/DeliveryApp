@@ -1,8 +1,10 @@
-﻿using System.Text;
+using System.Text;
+using System.Text.Json;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.IdentityModel.Tokens;
 using UserService.BLL.DTOs.Response;
 using UserService.BLL.Exceptions;
@@ -18,14 +20,16 @@ namespace UserService.BLL.Services
         private readonly IMapper _mapper;
         private readonly IBackgroundJobService _backgroundJobService;
         private readonly ILogger<AccountService> _logger;
-
-        public AccountService(IUserRepository userRepository, IEmailService emailSender, IMapper mapper, IBackgroundJobService backgroundJobService, ILogger<AccountService> logger)
+        private readonly IDistributedCache _distributedCache;
+        
+        public AccountService(IUserRepository userRepository, IEmailService emailSender, IMapper mapper, IBackgroundJobService backgroundJobService, ILogger<AccountService> logger, IDistributedCache distributedCache)
         {
             _userRepository = userRepository;
             _emailSender = emailSender;
             _mapper = mapper;
             _backgroundJobService = backgroundJobService;
             _logger = logger;
+            _distributedCache = distributedCache;
         }
 
         public async Task<IdentityResult> ConfirmEmailASync(string email, string token, CancellationToken cancellationToken = default)
@@ -214,12 +218,29 @@ namespace UserService.BLL.Services
             cancellationToken.ThrowIfCancellationRequested();
 
             _logger.LogInformation("Retrieving information about user: @{userId}", userId);
+            
+            var cacheKey = $"user:{userId}";
+            var cached = await _distributedCache.GetStringAsync(cacheKey, cancellationToken);
+
+            if (!string.IsNullOrEmpty(cached))
+            {
+                return JsonSerializer.Deserialize<UserDetailsDTO>(cached);
+            }
 
             var user = await _userRepository.GetUserByIdAsync(userId, cancellationToken);
+            var result = _mapper.Map<UserDetailsDTO>(user);
+
+            await _distributedCache.SetStringAsync(
+                cacheKey,
+                JsonSerializer.Serialize(result),
+                new DistributedCacheEntryOptions()
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10),
+                }, cancellationToken);
 
             _logger.LogInformation("Successfully retrieved information about user: @{userId}", userId);
 
-            return _mapper.Map<UserDetailsDTO>(user);
+            return result;
         }
     }
 }

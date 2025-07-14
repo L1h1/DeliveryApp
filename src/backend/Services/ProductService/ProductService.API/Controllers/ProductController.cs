@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using ProductService.Application.Commands.Product.CreateProduct;
@@ -67,6 +68,7 @@ namespace ProductService.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateProduct([FromBody] ProductRequestDTO dto, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Attempting to create product {@product}", dto);
@@ -80,6 +82,7 @@ namespace ProductService.API.Controllers
         }
 
         [HttpPost("details")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateProductDetails([FromBody] ProductDetailsRequestDTO dto, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Attempting to add details to product {@id}", dto.ProductId);
@@ -93,6 +96,7 @@ namespace ProductService.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateProduct([FromRoute] Guid id, [FromBody] ProductRequestDTO dto, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Attempting to update @{id} product", id);
@@ -106,6 +110,7 @@ namespace ProductService.API.Controllers
         }
 
         [HttpPut("details")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateProductDetails([FromBody] ProductDetailsRequestDTO dto, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Attempting to update details for product @{id}", dto.ProductId);
@@ -119,6 +124,7 @@ namespace ProductService.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteProduct([FromRoute] Guid id, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Attempting to delete product @{id}", id);
@@ -132,6 +138,7 @@ namespace ProductService.API.Controllers
         }
 
         [HttpDelete("details/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteProductDetails([FromRoute] Guid id, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Attempting to delete details for product @{id}", id);

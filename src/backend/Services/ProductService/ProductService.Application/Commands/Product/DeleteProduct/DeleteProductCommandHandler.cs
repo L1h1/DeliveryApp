@@ -1,5 +1,6 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Caching.Distributed;
 using ProductService.Application.Exceptions;
 using ProductService.Application.Interfaces.Repositories;
 
@@ -9,11 +10,13 @@ namespace ProductService.Application.Commands.Product.DeleteProduct
     {
         private readonly IProductRepository _productRepository;
         private readonly ILogger<DeleteProductCommandHandler> _logger;
-
-        public DeleteProductCommandHandler(IProductRepository productRepository, ILogger<DeleteProductCommandHandler> logger)
+        private readonly IDistributedCache _distributedCache;
+        
+        public DeleteProductCommandHandler(IProductRepository productRepository, ILogger<DeleteProductCommandHandler> logger, IDistributedCache distributedCache)
         {
             _productRepository = productRepository;
             _logger = logger;
+            _distributedCache = distributedCache;
         }
 
         public async Task<Unit> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
@@ -28,6 +31,7 @@ namespace ProductService.Application.Commands.Product.DeleteProduct
             }
 
             await _productRepository.DeleteAsync(existingProduct, cancellationToken);
+            await _distributedCache.RemoveAsync($"product:{request.Id}", cancellationToken);
 
             _logger.LogInformation("Successfully deleted product @{id}", request.Id);
 

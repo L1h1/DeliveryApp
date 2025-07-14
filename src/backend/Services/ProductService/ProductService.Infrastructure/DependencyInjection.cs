@@ -31,5 +31,16 @@ namespace ProductService.Infrastructure
 
             return services;
         }
+
+        public static IServiceCollection AddRedisCaching(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddStackExchangeRedisCache(opt =>
+            {
+                opt.Configuration = configuration.GetConnectionString("Redis");
+                opt.InstanceName = "Products_";
+            });
+
+            return services;
+        }
     }
 }
