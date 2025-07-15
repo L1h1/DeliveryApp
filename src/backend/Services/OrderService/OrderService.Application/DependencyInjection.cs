@@ -24,6 +24,7 @@ namespace OrderService.Application
             services.AddFluentValidationAutoValidation();
 
             services.AddScoped<IBillService, BillService>();
+            services.AddScoped<IOrderFlowService, OrderFlowService>();
 
             return services;
         }

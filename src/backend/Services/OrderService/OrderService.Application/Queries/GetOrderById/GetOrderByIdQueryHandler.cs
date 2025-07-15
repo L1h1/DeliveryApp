@@ -15,7 +15,7 @@ namespace OrderService.Application.Queries.GetOrderById
         private readonly IOrderRepository _orderRepository;
         private readonly ILogger<GetOrderByIdQueryHandler> _logger;
         private readonly IDistributedCache _distributedCache;
-        
+
         public GetOrderByIdQueryHandler(IOrderRepository orderRepository, IMapper mapper, ILogger<GetOrderByIdQueryHandler> logger, IDistributedCache distributedCache)
         {
             _mapper = mapper;
@@ -45,6 +45,8 @@ namespace OrderService.Application.Queries.GetOrderById
 
             _logger.LogInformation("Successfully retrieved order @{id}", request.OrderId);
 
+            var result = _mapper.Map<DetailedOrderResponseDTO>(response);
+
             await _distributedCache.SetStringAsync(
                 cacheKey,
                 JsonSerializer.Serialize(result),
@@ -52,8 +54,6 @@ namespace OrderService.Application.Queries.GetOrderById
                 {
                     AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10),
                 }, cancellationToken);
-
-            var result = _mapper.Map<DetailedOrderResponseDTO>(response);
 
             return result;
         }

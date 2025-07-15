@@ -2,10 +2,8 @@ using AutoMapper;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Caching.Distributed;
-using OrderService.Application.DTOs.Messaging;
 using OrderService.Application.DTOs.Response;
 using OrderService.Application.Exceptions;
-using OrderService.Application.Interfaces.Messaging.Producers;
 using OrderService.Application.Interfaces.Repositories;
 using OrderService.Application.Interfaces.Services;
 using OrderService.Domain.Entities;
@@ -18,9 +16,7 @@ namespace OrderService.Application.Commands.CreateOrder
         private readonly IOrderRepository _orderRepository;
         private readonly IProductService _productService;
         private readonly IUserService _userService;
-        private readonly IBackgroundJobService _backgroundJobService;
-        private readonly IBillService _billService;
-        private readonly IMessageProducer _messageProducer;
+        private readonly IOrderFlowService _orderFlowService;
         private readonly ILogger<CreateOrderCommandHandler> _logger;
         private readonly IDistributedCache _distributedCache;
 
@@ -29,21 +25,17 @@ namespace OrderService.Application.Commands.CreateOrder
             IOrderRepository orderRepository,
             IProductService productService,
             IUserService userService,
-            IBackgroundJobService backgroundJobService,
-            IBillService billService,
-            IMessageProducer messageProducer,
-            ILogger<CreateOrderCommandHandler> logger)
-            IDistributedCache distributedCache)
+            IDistributedCache distributedCache,
+            ILogger<CreateOrderCommandHandler> logger,
+            IOrderFlowService orderFlowService)
         {
             _mapper = mapper;
             _orderRepository = orderRepository;
             _productService = productService;
             _userService = userService;
-            _backgroundJobService = backgroundJobService;
-            _billService = billService;
-            _messageProducer = messageProducer;
-            _logger = logger;
             _distributedCache = distributedCache;
+            _logger = logger;
+            _orderFlowService = orderFlowService;
         }
 
         public async Task<OrderResponseDTO> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
@@ -84,26 +76,13 @@ namespace OrderService.Application.Commands.CreateOrder
 
             await _orderRepository.CreateAsync(order, cancellationToken);
 
-            _logger.LogInformation("Scheduling bill email job for order @{id}", order.Id);
-
-            _backgroundJobService.CreateJob(() => GenerateAndSendBillAsync(order, userEmail));
+            await _orderFlowService.ProcessOrderCreation(order, userEmail, cancellationToken);
 
             _logger.LogInformation("Successfully created order @{orderId} for client @{clientId}", order.Id, order.ClientId);
             
             await _distributedCache.RemoveAsync($"orders:client:{order.ClientId}");
 
             return _mapper.Map<OrderResponseDTO>(order);
-        }
-
-        public async Task GenerateAndSendBillAsync(Order order, string email)
-        {
-            var contents = await _billService.CreateDocumentAsync(order);
-
-            await _messageProducer.SendMessageAsync("bills", new BillDTO
-            {
-                Email = email,
-                Contents = contents
-            });
         }
     }
 }
